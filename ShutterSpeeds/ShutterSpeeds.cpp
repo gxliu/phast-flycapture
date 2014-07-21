@@ -103,34 +103,6 @@ int RunSingleCamera( PGRGuid guid )
 
     PrintCameraInfo(&camInfo);      
 
-    // Get the property information
-    // Aka shutter speed
-    // PropertyInfo propinfo;
-    // error = cam.GetPropertyInfo(&propInfo);
-
-    // if (error != PGRERROR_OK)
-    // {
-    //     PrintError( error );
-    //     return -1;
-    // }
-
-    // PrintPropertyInfo(&propInfo);   
-
-    // PropertyType ptype = SHUTTER;
-    // Property p = new Property(ptype);
-    // error = cam.GetProperty(&p);
-
-    // if (error != PGRERROR_OK)
-    // {
-    //     PrintError( error );
-    //     return -1;
-    // }
-
-    // printf(
-    //     "\n*** PROPERTY INFORMATION ***\n"
-    //     "Value A - %u\n",
-    //     p->valueA );
-      
     // Retrieve shutter property
     Property shutter;
     shutter.type = SHUTTER;
@@ -142,7 +114,7 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
-    shutter.absValue = 1;
+    shutter.absValue = 20;
     error = cam.SetProperty( &shutter );
 
     if (error != PGRERROR_OK)
@@ -151,6 +123,11 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
     
+    // Let it update...it takes a while...
+    // Otherwise the first pictures comes out 
+        //with the same shutter value as the old value
+    sleep(2);
+
     // Start capturing images
     error = cam.StartCapture();
     if (error != PGRERROR_OK)
