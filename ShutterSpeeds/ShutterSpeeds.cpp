@@ -155,9 +155,37 @@ int RunSingleCamera( PGRGuid guid )
     //set shutter to new value
     Property shutter;
     shutter.type = SHUTTER;
-    shutter.absValue = 5.0;
+    shutter.absValue = 20.0;
     shutter.autoManualMode = false;
-    error = cam.SetProperty( &shutter );
+
+    //takes a constant
+    // error = cam.SetProperty( &shutter );
+
+        // number absValue holds number of ms
+    for(int counter=0; counter < 5; counter++) {
+        error = cam.GetProperty( &shutter );
+
+ if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+        printf(
+        "\n*** PROPERTY INFORMATION ***\n"
+        "Abs Value - %f\n"
+        "\n",
+        shutter.absValue );
+
+        //sleep(1);
+    }
+    
+
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
 
     Property brightness;
     brightness.type = BRIGHTNESS;
@@ -225,25 +253,18 @@ int RunSingleCamera( PGRGuid guid )
     error = cam.SetProperty( &framerate );
 
 
+    // // number absValue holds number of ms
+    // for(int counter=0; counter < 5; counter++) {
+    //     error = cam.GetProperty( &shutter );
 
-    if (error != PGRERROR_OK)
-    {
-        PrintError( error );
-        return -1;
-    }
+    //     printf(
+    //     "\n*** PROPERTY INFORMATION ***\n"
+    //     "Abs Value - %f\n"
+    //     "\n",
+    //     shutter.absValue );
 
-    // number absValue holds number of ms
-    for(int counter=0; counter < 5; counter++) {
-        error = cam.GetProperty( &shutter );
-
-        printf(
-        "\n*** PROPERTY INFORMATION ***\n"
-        "Abs Value - %f\n"
-        "\n",
-        shutter.absValue );
-
-        sleep(1);
-    }
+    //     //sleep(1);
+    // }
     
 
 
