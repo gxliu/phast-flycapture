@@ -27,9 +27,6 @@ using std::cout;
 using std::endl;
 
 #include <stdio.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 
 
 using namespace FlyCapture2;
@@ -134,51 +131,10 @@ int RunSingleCamera( PGRGuid guid )
     //     "Value A - %u\n",
     //     p->valueA );
       
-    // Retrieve properties
-    // Property shutter;
-    // shutter.type = SHUTTER;
-    // error = cam.GetProperty( &shutter );
-
-    // if (error != PGRERROR_OK)
-    // {
-    //     PrintError( error );
-    //     return -1;
-    // }
-
-    // // number absValue holds number of ms
-    // printf(
-    // "\n*** PROPERTY INFORMATION ***\n"
-    // "Abs Value - %f\n"
-    // "\n",
-    // shutter.absValue );
-
-    //set shutter to new value
+    // Retrieve shutter property
     Property shutter;
     shutter.type = SHUTTER;
-    shutter.absValue = 20.0;
-    shutter.autoManualMode = false;
-
-    //takes a constant
-    // error = cam.SetProperty( &shutter );
-
-        // number absValue holds number of ms
-    for(int counter=0; counter < 5; counter++) {
-        error = cam.GetProperty( &shutter );
-
- if (error != PGRERROR_OK)
-    {
-        PrintError( error );
-        return -1;
-    }
-        printf(
-        "\n*** PROPERTY INFORMATION ***\n"
-        "Abs Value - %f\n"
-        "\n",
-        shutter.absValue );
-
-        //sleep(1);
-    }
-    
+    error = cam.GetProperty( &shutter );
 
     if (error != PGRERROR_OK)
     {
@@ -186,91 +142,15 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
+    shutter.absValue = 1;
+    error = cam.SetProperty( &shutter );
 
-    Property brightness;
-    brightness.type = BRIGHTNESS;
-    brightness.autoManualMode = false;
-    error = cam.SetProperty( &brightness );
-
-    Property autoexposure;
-    autoexposure.type = AUTO_EXPOSURE;
-    autoexposure.autoManualMode = false;
-    error = cam.SetProperty( &autoexposure );
-
-    Property whitebalance;
-    whitebalance.type = WHITE_BALANCE;
-    whitebalance.autoManualMode = false;
-    error = cam.SetProperty( &whitebalance );
-
-    Property hue;
-    hue.type = HUE;
-    hue.autoManualMode = false;
-    error = cam.SetProperty( &hue );
-
-    Property saturation;
-    saturation.type = SATURATION;
-    saturation.autoManualMode = false;
-    error = cam.SetProperty( &saturation );
-
-    Property gamma;
-    gamma.type = GAMMA;
-    gamma.autoManualMode = false;
-    error = cam.SetProperty( &gamma );
-
-    Property iris;
-    iris.type = IRIS;
-    iris.autoManualMode = false;
-    error = cam.SetProperty( &iris );
-
-    Property focus;
-    focus.type = FOCUS;
-    focus.autoManualMode = false;
-    error = cam.SetProperty( &focus );
-
-    Property zoom;
-    zoom.type = ZOOM;
-    zoom.autoManualMode = false;
-    error = cam.SetProperty( &zoom );
-
-    Property pan;
-    pan.type = PAN;
-    pan.autoManualMode = false;
-    error = cam.SetProperty( &pan );
-
-    Property tilt;
-    tilt.type = TILT;
-    tilt.autoManualMode = false;
-    error = cam.SetProperty( &tilt );
-
-    Property gain;
-    gain.type = GAIN;
-    gain.autoManualMode = false;
-    error = cam.SetProperty( &gain );
-
-    Property framerate;
-    framerate.type = FRAME_RATE;
-    framerate.autoManualMode = false;
-    error = cam.SetProperty( &framerate );
-
-
-    // // number absValue holds number of ms
-    // for(int counter=0; counter < 5; counter++) {
-    //     error = cam.GetProperty( &shutter );
-
-    //     printf(
-    //     "\n*** PROPERTY INFORMATION ***\n"
-    //     "Abs Value - %f\n"
-    //     "\n",
-    //     shutter.absValue );
-
-    //     //sleep(1);
-    // }
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
     
-
-
-
-
-
     // Start capturing images
     error = cam.StartCapture();
     if (error != PGRERROR_OK)
@@ -307,7 +187,7 @@ int RunSingleCamera( PGRGuid guid )
 
         // Create a unique filename
         char filename[512];
-        sprintf( filename, "dirname/FlyCapture2Test-%u-%d.pgm", camInfo.serialNumber, imageCnt );
+        sprintf( filename, "FlyCapture2Test-%u-%d.pgm", camInfo.serialNumber, imageCnt );
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -341,10 +221,6 @@ int RunSingleCamera( PGRGuid guid )
 
 int main(int /*argc*/, char** /*argv*/)
 {    
-
-    if(mkdir("dirname",0777)==-1) {
-        printf("error");
-    }
     PrintBuildInfo();
 
     Error error;
@@ -352,14 +228,14 @@ int main(int /*argc*/, char** /*argv*/)
     // Since this application saves images in the current folder
     // we must ensure that we have permission to write to this folder.
     // If we do not have permission, fail right away.
-	FILE* tempFile = fopen("test.txt", "w+");
-	if (tempFile == NULL)
-	{
-		printf("Failed to create file in current folder.  Please check permissions.\n");
-		return -1;
-	}
-	fclose(tempFile);
-	remove("test.txt");
+    FILE* tempFile = fopen("test.txt", "w+");
+    if (tempFile == NULL)
+    {
+        printf("Failed to create file in current folder.  Please check permissions.\n");
+        return -1;
+    }
+    fclose(tempFile);
+    remove("test.txt");
 
     BusManager busMgr;
     unsigned int numCameras;
