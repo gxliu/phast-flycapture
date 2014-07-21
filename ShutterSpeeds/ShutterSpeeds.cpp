@@ -142,13 +142,38 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
+    // number absValue holds number of ms
     printf(
     "\n*** PROPERTY INFORMATION ***\n"
-    "Value A - %u\n"
-    "Value B - %u\n"
+    "Abs Value - %f\n"
     "\n",
-    shutter.valueA,
-    shutter.valueB );
+    shutter.absValue );
+
+    //set shutter to new value
+    shutter.absValue = 20;
+    error = cam.SetProperty( &shutter );
+
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    // number absValue holds number of ms
+    for(int counter=0; counter < 5; counter++) {
+        error = cam.GetProperty( &shutter );
+
+        printf(
+        "\n*** PROPERTY INFORMATION ***\n"
+        "Abs Value - %f\n"
+        "\n",
+        shutter.absValue );
+
+        sleep(1);
+    }
+    
+
+
 
 
 
