@@ -22,11 +22,15 @@
 
 #include "FlyCapture2.h"
 
+#include <string>
 #include <iostream>
 using std::cout;
 using std::endl;
+using std::cin;
 
 #include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 
 using namespace FlyCapture2;
@@ -74,8 +78,32 @@ void PrintError( Error error )
     error.PrintErrorTrace();
 }
 
+int getDir() {
+    // String dir;
+    // cout << "Please enter the name of this camera-lens combination: ";
+    // cin >> dir;
+    // cout << dir;
+
+    // if(mkdir("asdf",0777)==-1) {
+    //     printf("error in creating directory");
+    // } 
+
+    std::string dir;
+    std::cout << "Enter your file: ";
+    std::getline(std::cin, dir);
+    const char * c = dir.c_str();
+
+    if(mkdir(c,0777)==-1) {
+        printf("error in creating directory");
+    } 
+
+    return 0;
+}
+
 int RunSingleCamera( PGRGuid guid )
 {
+
+    getDir();
     
 
     Error error;
@@ -197,7 +225,9 @@ int RunSingleCamera( PGRGuid guid )
 }
 
 int main(int /*argc*/, char** /*argv*/)
-{    
+{   
+    
+
     PrintBuildInfo();
 
     Error error;
