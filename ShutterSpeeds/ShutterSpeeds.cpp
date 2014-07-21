@@ -24,6 +24,7 @@
 
 #include <iostream>
 using std::cout;
+using std::endl;
 
 #include <stdio.h>
 
@@ -91,13 +92,65 @@ int RunSingleCamera( PGRGuid guid )
     // Get the camera information
     CameraInfo camInfo;
     error = cam.GetCameraInfo(&camInfo);
+
+
+
     if (error != PGRERROR_OK)
     {
         PrintError( error );
         return -1;
     }
 
-    PrintCameraInfo(&camInfo);        
+    PrintCameraInfo(&camInfo);      
+
+    // Get the property information
+    // Aka shutter speed
+    // PropertyInfo propinfo;
+    // error = cam.GetPropertyInfo(&propInfo);
+
+    // if (error != PGRERROR_OK)
+    // {
+    //     PrintError( error );
+    //     return -1;
+    // }
+
+    // PrintPropertyInfo(&propInfo);   
+
+    // PropertyType ptype = SHUTTER;
+    // Property p = new Property(ptype);
+    // error = cam.GetProperty(&p);
+
+    // if (error != PGRERROR_OK)
+    // {
+    //     PrintError( error );
+    //     return -1;
+    // }
+
+    // printf(
+    //     "\n*** PROPERTY INFORMATION ***\n"
+    //     "Value A - %u\n",
+    //     p->valueA );
+      
+    // Retrieve shutter property
+    Property shutter;
+    shutter.type = SHUTTER;
+    error = cam.GetProperty( &shutter );
+
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    printf(
+    "\n*** PROPERTY INFORMATION ***\n"
+    "Value A - %u\n"
+    "Value B - %u\n"
+    "\n",
+    shutter.valueA,
+    shutter.valueB );
+
+
 
     // Start capturing images
     error = cam.StartCapture();
@@ -107,7 +160,7 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
-    const int k_numImages = 100;
+    const int k_numImages = 0;
     Image rawImage; 
     int imageCnt=0;   
     while(imageCnt < k_numImages)
