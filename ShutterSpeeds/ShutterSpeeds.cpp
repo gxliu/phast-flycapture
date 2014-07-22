@@ -82,18 +82,18 @@ void PrintError( Error error )
 string getDir() {
 
     string dir;
-    cout << "Enter your file: ";
+    cout << "Enter your camera-lens combination: ";
     std::getline(cin, dir);
     const char * c = dir.c_str();
 
     if(mkdir(c,0777)==-1) {
-        printf("error in creating directory");
+        printf("error in creating head directory");
     } 
 
     return dir;
 }
 
-int runShutter(Camera& cam, string dir, int ms) {
+int runShutter(Camera& cam, string dir, float ms) {
     
 
     Error error;
@@ -128,10 +128,10 @@ int runShutter(Camera& cam, string dir, int ms) {
     //make directory for this number of milliseconds
     char msdir[512];
     const char * d = dir.c_str();
-    sprintf( msdir, "%s/%d-ms", d, ms );
+    sprintf( msdir, "%s/%f-ms", d, ms );
 
     if(mkdir(msdir,0777)==-1) {
-        printf("error in creating directory");
+        printf("error in creating subdirectory");
     } 
 
     const int k_numImages = 5;
@@ -147,7 +147,7 @@ int runShutter(Camera& cam, string dir, int ms) {
             continue;
         }
 
-        printf( "Grabbed image %d with a %d ms shutter.  \n", imageCnt, ms );
+        printf( "Grabbed image %d with a %f ms shutter.  \n", imageCnt, ms );
 
         // Create a converted image
         Image convertedImage;
@@ -164,7 +164,7 @@ int runShutter(Camera& cam, string dir, int ms) {
         char filename[512];
         // turn dir from string to char*
         const char * c = dir.c_str();
-        sprintf( filename, "%s/%d-ms/img-%d.pgm", c, ms, imageCnt );
+        sprintf( filename, "%s/%f-ms/img-%d.pgm", c, ms, imageCnt );
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -222,7 +222,7 @@ int RunSingleCamera( PGRGuid guid )
 
     //collect ms shutter values
     int trials = 3;
-    int shuttervals[trials];
+    float shuttervals[trials];
 
     for(int n=0; n<trials; n++) {
         cout << "Enter the number of ms for a shutter value: \n";
