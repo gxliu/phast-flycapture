@@ -132,6 +132,13 @@ int runShutter(Camera& cam, string dir, int ms) {
     }
 
     //make directory for this number of milliseconds
+    char msdir[512];
+    const char * d = dir.c_str();
+    sprintf( msdir, "%s/%d-ms", d, ms );
+
+    if(mkdir(msdir,0777)==-1) {
+        printf("error in creating directory");
+    } 
 
     const int k_numImages = 5;
     Image rawImage; 
