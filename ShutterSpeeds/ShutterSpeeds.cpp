@@ -27,6 +27,7 @@
 using std::cout;
 using std::endl;
 using std::cin;
+using std::string;
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -78,58 +79,24 @@ void PrintError( Error error )
     error.PrintErrorTrace();
 }
 
-int getDir() {
-    // String dir;
-    // cout << "Please enter the name of this camera-lens combination: ";
-    // cin >> dir;
-    // cout << dir;
+string getDir() {
 
-    // if(mkdir("asdf",0777)==-1) {
-    //     printf("error in creating directory");
-    // } 
-
-    std::string dir;
-    std::cout << "Enter your file: ";
-    std::getline(std::cin, dir);
+    string dir;
+    cout << "Enter your file: ";
+    std::getline(cin, dir);
     const char * c = dir.c_str();
 
     if(mkdir(c,0777)==-1) {
         printf("error in creating directory");
     } 
 
-    return 0;
+    return dir;
 }
 
-int RunSingleCamera( PGRGuid guid )
-{
-
-    getDir();
+int runShutter(Camera& cam, string dir, int ms) {
     
 
     Error error;
-    Camera cam;
-
-    // Connect to a camera
-    error = cam.Connect(&guid);
-    if (error != PGRERROR_OK)
-    {
-        PrintError( error );
-        return -1;
-    }
-
-    // Get the camera information
-    CameraInfo camInfo;
-    error = cam.GetCameraInfo(&camInfo);
-
-
-
-    if (error != PGRERROR_OK)
-    {
-        PrintError( error );
-        return -1;
-    }
-
-    PrintCameraInfo(&camInfo);      
 
     // Retrieve shutter property
     Property shutter;
@@ -142,7 +109,7 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
-    shutter.absValue = 20;
+    shutter.absValue = ms;
     error = cam.SetProperty( &shutter );
 
     if (error != PGRERROR_OK)
@@ -164,7 +131,9 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
-    const int k_numImages = 3;
+    //make directory for this number of milliseconds
+
+    const int k_numImages = 5;
     Image rawImage; 
     int imageCnt=0;   
     while(imageCnt < k_numImages)
@@ -192,7 +161,9 @@ int RunSingleCamera( PGRGuid guid )
 
         // Create a unique filename
         char filename[512];
-        sprintf( filename, "FlyCapture2Test-%u-%d.pgm", camInfo.serialNumber, imageCnt );
+        // turn dir from string to char*
+        const char * c = dir.c_str();
+        sprintf( filename, "%s/%d-ms/img-%d.pgm", c, ms, imageCnt );
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -205,6 +176,43 @@ int RunSingleCamera( PGRGuid guid )
         imageCnt++;
     }            
 
+
+    return 0;
+}
+
+int RunSingleCamera( PGRGuid guid )
+{
+
+    string dir = getDir();
+    
+
+    Error error;
+    Camera cam;
+
+    // Connect to a camera
+    error = cam.Connect(&guid);
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    // Get the camera information
+    CameraInfo camInfo;
+    error = cam.GetCameraInfo(&camInfo);
+
+
+
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    PrintCameraInfo(&camInfo);   
+
+    runShutter(cam, dir, 20);
+
     // Stop capturing images
     error = cam.StopCapture();
     if (error != PGRERROR_OK)
@@ -213,6 +221,7 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }      
 
+    
     // Disconnect the camera
     error = cam.Disconnect();
     if (error != PGRERROR_OK)
