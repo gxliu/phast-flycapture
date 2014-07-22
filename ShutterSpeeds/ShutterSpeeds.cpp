@@ -121,15 +121,9 @@ int runShutter(Camera& cam, string dir, int ms) {
     // Let it update...it takes a while...
     // Otherwise the first pictures comes out 
         //with the same shutter value as the old value
-    sleep(2);
+    sleep(5);
 
-    // Start capturing images
-    error = cam.StartCapture();
-    if (error != PGRERROR_OK)
-    {
-        PrintError( error );
-        return -1;
-    }
+    
 
     //make directory for this number of milliseconds
     char msdir[512];
@@ -153,7 +147,7 @@ int runShutter(Camera& cam, string dir, int ms) {
             continue;
         }
 
-        printf( "Grabbed image %d\n", imageCnt );
+        printf( "Grabbed image %d with a %d ms shutter.  \n", imageCnt, ms );
 
         // Create a converted image
         Image convertedImage;
@@ -218,7 +212,30 @@ int RunSingleCamera( PGRGuid guid )
 
     PrintCameraInfo(&camInfo);   
 
-    runShutter(cam, dir, 20);
+    // Start capturing images
+    error = cam.StartCapture();
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    //collect ms shutter values
+    int trials = 3;
+    int shuttervals[trials];
+
+    for(int n=0; n<trials; n++) {
+        cout << "Enter the number of ms for a shutter value: \n";
+        cin >> shuttervals[n];
+    }
+
+    // run 5 pictures for each of those shutter values
+    for(int n=0; n<trials; n++) {
+        runShutter(cam, dir, shuttervals[n]);
+    }
+    
+
+    
 
     // Stop capturing images
     error = cam.StopCapture();
