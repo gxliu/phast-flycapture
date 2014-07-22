@@ -24,14 +24,17 @@
 
 #include <string>
 #include <iostream>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
+#include <fstream>
 using std::cout;
 using std::endl;
 using std::cin;
 using std::string;
+using std::ofstream;
+
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 using namespace FlyCapture2;
 
@@ -53,9 +56,23 @@ void PrintBuildInfo()
     cout << timeStamp ;
 }
 
-void PrintCameraInfo( CameraInfo* pCamInfo )
+void PrintCameraInfo( CameraInfo* pCamInfo, string dir )
 {
-    printf(
+    ofstream myfile;
+
+    // Create a unique filename
+    char filename[512];
+    // turn dir from string to char*
+    const char * c = dir.c_str();
+    sprintf( filename, "%s/camera.txt", c);
+
+    myfile.open(filename);
+
+
+    char info[2048];
+
+    sprintf(
+        info,
         "\n*** CAMERA INFORMATION ***\n"
         "Serial number - %u\n"
         "Camera model - %s\n"
@@ -71,6 +88,9 @@ void PrintCameraInfo( CameraInfo* pCamInfo )
         pCamInfo->sensorResolution,
         pCamInfo->firmwareVersion,
         pCamInfo->firmwareBuildTime );
+
+    myfile << info;
+    myfile.close();
 }
 
 void PrintError( Error error )
@@ -81,18 +101,20 @@ void PrintError( Error error )
 string getDir() {
 
     string dir;
-    cout << "Enter your camera-lens combination: ";
+    cout << "Enter your file: ";
     std::getline(cin, dir);
+
+
     const char * c = dir.c_str();
 
     if(mkdir(c,0777)==-1) {
-        printf("error in creating head directory");
+        printf("error in creating directory \n");
     } 
 
     return dir;
 }
 
-int runShutter(Camera& cam, string dir, float ms) {
+int runShutter(Camera& cam, string dir, int ms) {
     
 
     Error error;
@@ -119,23 +141,21 @@ int runShutter(Camera& cam, string dir, float ms) {
     
     // Let it update...it takes a while...
     // Otherwise the first pictures comes out 
-    // with the same shutter value as the old value
-    sleep(10);
+        //with the same shutter value as the old value
+    sleep(5);
 
     
 
-    // make directory for this number of milliseconds
-    // put it under the head directory
+    //make directory for this number of milliseconds
     char msdir[512];
     const char * d = dir.c_str();
-    sprintf( msdir, "%s/%f-ms", d, ms );
+    sprintf( msdir, "%s/%d-ms", d, ms );
 
     if(mkdir(msdir,0777)==-1) {
-        printf("error in creating subdirectory");
+        printf("error in creating directory \n");
     } 
 
-    // take 5 images
-    const int k_numImages = 6;
+    const int k_numImages = 5;
     Image rawImage; 
     int imageCnt=0;   
     while(imageCnt < k_numImages)
@@ -148,7 +168,7 @@ int runShutter(Camera& cam, string dir, float ms) {
             continue;
         }
 
-        printf( "Grabbed image %d with a %f ms shutter.  \n", imageCnt, ms );
+        printf( "Grabbed image %d with a %d ms shutter.  \n", imageCnt, ms );
 
         // Create a converted image
         Image convertedImage;
@@ -165,7 +185,7 @@ int runShutter(Camera& cam, string dir, float ms) {
         char filename[512];
         // turn dir from string to char*
         const char * c = dir.c_str();
-        sprintf( filename, "%s/%f-ms/img-%d.pgm", c, ms, imageCnt );
+        sprintf( filename, "%s/%d-ms/img-%d.pgm", c, ms, imageCnt );
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -186,6 +206,7 @@ int RunSingleCamera( PGRGuid guid )
 {
 
     string dir = getDir();
+    
 
     Error error;
     Camera cam;
@@ -202,13 +223,15 @@ int RunSingleCamera( PGRGuid guid )
     CameraInfo camInfo;
     error = cam.GetCameraInfo(&camInfo);
 
+
+
     if (error != PGRERROR_OK)
     {
         PrintError( error );
         return -1;
     }
 
-    PrintCameraInfo(&camInfo);   
+    PrintCameraInfo(&camInfo, dir);   
 
     // Start capturing images
     error = cam.StartCapture();
@@ -220,7 +243,7 @@ int RunSingleCamera( PGRGuid guid )
 
     //collect ms shutter values
     int trials = 3;
-    float shuttervals[trials];
+    int shuttervals[trials];
 
     for(int n=0; n<trials; n++) {
         cout << "Enter the number of ms for a shutter value: \n";
@@ -231,6 +254,9 @@ int RunSingleCamera( PGRGuid guid )
     for(int n=0; n<trials; n++) {
         runShutter(cam, dir, shuttervals[n]);
     }
+    
+
+    
 
     // Stop capturing images
     error = cam.StopCapture();
@@ -240,6 +266,7 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }      
 
+    
     // Disconnect the camera
     error = cam.Disconnect();
     if (error != PGRERROR_OK)
