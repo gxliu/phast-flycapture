@@ -62,15 +62,13 @@ void PrintCameraInfo( CameraInfo* pCamInfo, const char* dir )
     ofstream myfile;
 
     // Create a unique filename
-    char* filename;
-    // turn dir from string to char*
-    
+    char filename[512];
     sprintf( filename, "%s/camera.txt", dir);
 
     myfile.open(filename);
 
 
-    char* info;
+    char info[2048];
 
     sprintf(
         info,
@@ -106,7 +104,7 @@ const char* getDir() {
     getline(cin, dir);
 
 
-    const char * c = dir.c_str();
+    const char* c = dir.c_str();
 
     if(mkdir(c,0777)==-1) {
         printf("error in creating directory \n");
@@ -204,7 +202,8 @@ int RunSingleCamera( PGRGuid guid )
 {
 
     //const char* dir = getDir();
-    const char* dir = "helloimyellow"
+    char s[100] = "helloimyellow";
+    const char* dir = s;
     
 
     Error error;
