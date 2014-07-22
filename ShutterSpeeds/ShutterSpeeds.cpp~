@@ -135,7 +135,7 @@ int runShutter(Camera& cam, string dir, float ms) {
     } 
 
     // take 5 images
-    const int k_numImages = 6;
+    const int k_numImages = 5;
     Image rawImage; 
     int imageCnt=0;   
     while(imageCnt < k_numImages)
