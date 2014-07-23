@@ -59,11 +59,18 @@ void PrintBuildInfo()
 
 void PrintCameraInfo( CameraInfo* pCamInfo, const char* dir )
 {
-    ofstream myfile;
+	ofstream myfile;
+	char lensModel[20];
+	char focalLength[3];
+	cout << "Type Lens Model: ";
+	cin >> lensModel;
+	cout << "Type Lens Focal Length (mm): ";
+	cin >> focalLength;
 
     // Create a unique filename
     char filename[512];
     sprintf( filename, "%s/camera.txt", dir);
+	cout<<filename <<dir;
 
     myfile.open(filename);
 
@@ -79,14 +86,19 @@ void PrintCameraInfo( CameraInfo* pCamInfo, const char* dir )
         "Sensor - %s\n"
         "Resolution - %s\n"
         "Firmware version - %s\n"
-        "Firmware build time - %s\n\n",
+        "Firmware build time - %s\n\n"
+	"\n*** LENS INFORMATION ***\n"
+	"Lens Model - %s\n"
+	"Focal Length - %s\n\n",
         pCamInfo->serialNumber,
         pCamInfo->modelName,
         pCamInfo->vendorName,
         pCamInfo->sensorInfo,
         pCamInfo->sensorResolution,
         pCamInfo->firmwareVersion,
-        pCamInfo->firmwareBuildTime );
+        pCamInfo->firmwareBuildTime,
+	lensModel,
+	focalLength );
 
     myfile << info;
     myfile.close();
@@ -202,8 +214,8 @@ int RunSingleCamera( PGRGuid guid )
 {
 
     //const char* dir = 
-    const char s[100] = getDir();
-    const char* dir = s;
+    const char s = getDir();
+    const char* dir = getDir();
     
 
     Error error;
