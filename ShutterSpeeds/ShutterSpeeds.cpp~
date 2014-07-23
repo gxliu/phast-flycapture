@@ -24,10 +24,12 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 using std::cout;
 using std::endl;
 using std::cin;
 using std::string;
+using std::ofstream;
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -54,9 +56,23 @@ void PrintBuildInfo()
     cout << timeStamp ;
 }
 
-void PrintCameraInfo( CameraInfo* pCamInfo )
+void PrintCameraInfo( CameraInfo* pCamInfo, string dir )
 {
-    printf(
+    ofstream myfile;
+
+    // Create a unique filename
+    char filename[512];
+    // turn dir from string to char*
+    const char * c = dir.c_str();
+    sprintf( filename, "%s/camera.txt", c);
+
+    myfile.open(filename);
+
+
+    char info[2048];
+
+    sprintf(
+        info,
         "\n*** CAMERA INFORMATION ***\n"
         "Serial number - %u\n"
         "Camera model - %s\n"
@@ -72,6 +88,10 @@ void PrintCameraInfo( CameraInfo* pCamInfo )
         pCamInfo->sensorResolution,
         pCamInfo->firmwareVersion,
         pCamInfo->firmwareBuildTime );
+	
+	cout << info;
+    myfile << info;
+    myfile.close();
 }
 
 void PrintError( Error error )
@@ -84,10 +104,12 @@ string getDir() {
     string dir;
     cout << "Enter your file: ";
     std::getline(cin, dir);
+
+
     const char * c = dir.c_str();
 
     if(mkdir(c,0777)==-1) {
-        printf("error in creating directory");
+        printf("error in creating directory \n");
     } 
 
     return dir;
@@ -131,7 +153,7 @@ int runShutter(Camera& cam, string dir, int ms) {
     sprintf( msdir, "%s/%d-ms", d, ms );
 
     if(mkdir(msdir,0777)==-1) {
-        printf("error in creating directory");
+        printf("error in creating directory \n");
     } 
 
     const int k_numImages = 5;
@@ -164,7 +186,7 @@ int runShutter(Camera& cam, string dir, int ms) {
         char filename[512];
         // turn dir from string to char*
         const char * c = dir.c_str();
-        sprintf( filename, "%s/%d-ms/img-%d.pgm", c, ms, imageCnt );
+        sprintf( filename, "%s/%d-ms/img-%d.png", c, ms, imageCnt );
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -210,7 +232,7 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
-    PrintCameraInfo(&camInfo);   
+    PrintCameraInfo(&camInfo, dir);   
 
     // Start capturing images
     error = cam.StartCapture();

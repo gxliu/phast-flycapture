@@ -25,16 +25,15 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 using std::cout;
 using std::endl;
 using std::cin;
 using std::string;
 using std::ofstream;
-using std::getline;
+
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 
 using namespace FlyCapture2;
@@ -57,13 +56,15 @@ void PrintBuildInfo()
     cout << timeStamp ;
 }
 
-void PrintCameraInfo( CameraInfo* pCamInfo, const char* dir )
+void PrintCameraInfo( CameraInfo* pCamInfo, string dir )
 {
     ofstream myfile;
 
     // Create a unique filename
     char filename[512];
-    sprintf( filename, "%s/camera.txt", dir);
+    // turn dir from string to char*
+    const char * c = dir.c_str();
+    sprintf( filename, "%s/camera.txt", c);
 
     myfile.open(filename);
 
@@ -87,7 +88,8 @@ void PrintCameraInfo( CameraInfo* pCamInfo, const char* dir )
         pCamInfo->sensorResolution,
         pCamInfo->firmwareVersion,
         pCamInfo->firmwareBuildTime );
-
+	
+	cout << info;
     myfile << info;
     myfile.close();
 }
@@ -97,27 +99,35 @@ void PrintError( Error error )
     error.PrintErrorTrace();
 }
 
-const char* getDir() {
+string getDir() {
 
     string dir;
     cout << "Enter your file: ";
-    getline(cin, dir);
+    std::getline(cin, dir);
 
 
-    const char* c = dir.c_str();
+    const char * c = dir.c_str();
 
     if(mkdir(c,0777)==-1) {
         printf("error in creating directory \n");
     } 
 
-    return c;
+    return dir;
 }
 
-int runShutter(Camera& cam, const char* dir, int ms) {
+int runShutter(Camera& cam, string dir, int ms) {
     
 
     Error error;
 
+    PropertyType props[6];
+    props[0] = AUTO_EXPOSURE;
+    props[1] = SHARPNESSS;
+    props[2] = GAMMA;
+    props[3] = SHUTTER;
+    props[4] = GAIN;
+    props[5] = FRAME_RATE;
+    
     // Retrieve shutter property
     Property shutter;
     shutter.type = SHUTTER;
@@ -147,7 +157,8 @@ int runShutter(Camera& cam, const char* dir, int ms) {
 
     //make directory for this number of milliseconds
     char msdir[512];
-    sprintf( msdir, "%s/%d-ms", dir, ms );
+    const char * d = dir.c_str();
+    sprintf( msdir, "%s/%d-ms", d, ms );
 
     if(mkdir(msdir,0777)==-1) {
         printf("error in creating directory \n");
@@ -181,7 +192,9 @@ int runShutter(Camera& cam, const char* dir, int ms) {
 
         // Create a unique filename
         char filename[512];
-        sprintf( filename, "%s/%d-ms/img-%d.pgm", dir, ms, imageCnt );
+        // turn dir from string to char*
+        const char * c = dir.c_str();
+        sprintf( filename, "%s/%d-ms/img-%d.png", c, ms, imageCnt );
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -201,9 +214,7 @@ int runShutter(Camera& cam, const char* dir, int ms) {
 int RunSingleCamera( PGRGuid guid )
 {
 
-    //const char* dir = 
-    const char s[100] = getDir();
-    const char* dir = s;
+    string dir = getDir();
     
 
     Error error;
@@ -240,7 +251,7 @@ int RunSingleCamera( PGRGuid guid )
     }
 
     //collect ms shutter values
-    int trials = 3;
+    int trials = 4;
     int shuttervals[trials];
 
     for(int n=0; n<trials; n++) {
