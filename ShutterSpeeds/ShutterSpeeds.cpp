@@ -120,14 +120,41 @@ int runShutter(Camera& cam, string dir, int ms) {
 
     Error error;
 
-    PropertyType props[6];
-    props[0] = AUTO_EXPOSURE;
-    props[1] = SHARPNESSS;
-    props[2] = GAMMA;
-    props[3] = SHUTTER;
-    props[4] = GAIN;
-    props[5] = FRAME_RATE;
-    
+    PropertyType propTypes[6];
+    propTypes[0] = AUTO_EXPOSURE;
+    propTypes[1] = SHARPNESS;
+    propTypes[2] = GAMMA;
+    propTypes[3] = SHUTTER;
+    propTypes[4] = GAIN;
+    propTypes[5] = FRAME_RATE;
+
+    PropertyType propType;
+    Property prop;
+    for(int i=0; i < 6; i++) {
+        
+        propType = propTypes[i];
+        prop.type = propType;
+        error = cam.GetProperty( &prop );
+
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }
+
+        prop.autoManualMode = false;
+        prop.onOff = false;
+
+        error = cam.SetProperty( &prop );
+
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }
+
+        
+    }
     // Retrieve shutter property
     Property shutter;
     shutter.type = SHUTTER;
