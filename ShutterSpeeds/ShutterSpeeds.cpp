@@ -120,17 +120,18 @@ int runShutter(Camera& cam, string dir, int ms) {
 
     Error error;
 
-    PropertyType propTypes[6];
-    propTypes[0] = AUTO_EXPOSURE;
-    propTypes[1] = SHARPNESS;
-    propTypes[2] = GAMMA;
-    propTypes[3] = SHUTTER;
-    propTypes[4] = GAIN;
-    propTypes[5] = FRAME_RATE;
+    PropertyType propTypes[7];
+    propTypes[0] = BRIGHTNESS;
+    propTypes[1] = AUTO_EXPOSURE;
+    propTypes[2] = SHARPNESS;
+    propTypes[3] = GAMMA;
+    propTypes[4] = SHUTTER;
+    propTypes[5] = GAIN;
+    propTypes[6] = FRAME_RATE;
 
     PropertyType propType;
     Property prop;
-    for(int i=0; i < 6; i++) {
+    for(int i=0; i < 7; i++) {
         
         propType = propTypes[i];
         prop.type = propType;
