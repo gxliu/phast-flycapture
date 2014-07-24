@@ -318,16 +318,33 @@ int RunSingleCamera( PGRGuid guid )
     }
 
     //collect ms shutter values
-    int trials = 4;
-    int shuttervals[trials];
 
-    for(int n=0; n<trials; n++) {
-        cout << "Enter the number of ms for a shutter value: \n";
-        cin >> shuttervals[n];
+    // int trials = 4;
+    // int shuttervals[trials];
+
+    // for(int n=0; n<trials; n++) {
+    //     cout << "Enter the number of ms for a shutter value: \n";
+    //     cin >> shuttervals[n];
+    // }
+
+    int start = 10;
+    int end = 20;
+    int inc = 5;
+
+    int shuttervals[1000]; // 1000 is overkill
+    int count = 0;
+
+    int cur = start;
+    while(cur <= end) {
+        shuttervals[count] = cur;
+
+        cur = cur + inc;
+        count++;
     }
 
+
     // run 5 pictures for each of those shutter values
-    for(int n=0; n<trials; n++) {
+    for(int n=0; n<count; n++) {
         runShutter(cam, path, shuttervals[n]);
     }
     
