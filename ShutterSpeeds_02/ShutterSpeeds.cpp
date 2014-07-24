@@ -26,11 +26,13 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <algorithm>    // std::remove_if
 using std::cout;
 using std::endl;
 using std::cin;
 using std::string;
 using std::ofstream;
+using std::remove_if;
 
 #include <string.h>
 #include <stdio.h>
@@ -104,7 +106,12 @@ void PrintError( Error error )
 
 string getDir(CameraInfo* pCamInfo) {
 	string dir = pCamInfo->modelName;
+
+    //get rid of spaces
+    dir.erase(remove_if(dir.begin(), dir.end(), isspace), dir.end());
+
     const char * d = dir.c_str();
+    puts(d);
 
     if(mkdir(d,0777)==-1) {
         printf("Either there was an error creating the directory or you have already created the directory for that camera. Ctrl C if this is not the case. \n");
@@ -113,30 +120,38 @@ string getDir(CameraInfo* pCamInfo) {
     return dir;
 }
 
-const char* getPath(string dir) {
+string getPath(string dir) {
 	string lens;
 	char directory[100];
 	cout << "Enter the Lens You Are Testing: ";
 	std::getline(cin, lens);
 	
+    const char * d = dir.c_str();
+    const char * l = lens.c_str();
 	// Concatenates main directory string and sub-directory lens
 	// Lens directory is nested inside the camera model directory
 	// This allows for better organization of data
-	strcat(directory, dir);
+	strcpy(directory, d);
 	strcat(directory,"/");
-	strcat(directory, lens);
+	strcat(directory, l);
+	// puts(directory);
+    printf("%s", directory);
 	
 	const char* path = directory;
+
 
 	if(mkdir(path,0777)==-1) {
 		printf("Either there was an error creating the directory or you have already tested that lens. \n");
 	}
 
-	return path;
+    // puts(path);
+    string p = string(path);
+	return p;
 }
 
 int runShutter(Camera& cam, int ms, const char* path) {
-    
+    puts("!!!! in run shutter");
+    puts(path);
 
     Error error;
 
@@ -208,6 +223,7 @@ int runShutter(Camera& cam, int ms, const char* path) {
 
     sprintf( msdir, "%s/%d-ms", path, ms );
 
+
     //if(mkdir(msdir,0777)==-1) {
     //    printf("error in creating directory \n");
     //} 
@@ -242,6 +258,7 @@ int runShutter(Camera& cam, int ms, const char* path) {
         char filename[512];
 
         sprintf( filename, "%s/%d-ms/img-%d.png", path, ms, imageCnt+1 );
+        puts(filename);
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -285,7 +302,13 @@ int RunSingleCamera( PGRGuid guid)
     }
 
     string dir = getDir(&camInfo);
-    const char* path = getPath(dir);
+    string p = getPath(dir);
+    const char * path = p.c_str();
+
+    puts("!!!! in run single camera");
+    // puts(path);
+    printf("%s", path);
+
 
 
     PrintCameraInfo(&camInfo, dir);   
@@ -299,7 +322,7 @@ int RunSingleCamera( PGRGuid guid)
     }
 
     //collect ms shutter values
-    int trials = 4;
+    int trials = 3;
     int shuttervals[trials];
 
     for(int n=0; n<trials; n++) {

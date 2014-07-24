@@ -1,14 +1,14 @@
-# ShutterSpeeds_02 makefile
+# ShutterSpeeds makefile
 # To compile the debug verison need to overwrite CXXFLAGS variable to include -ggdb
 
 CC = g++
-OUTPUTNAME = ShutterSpeeds_02${D}
+OUTPUTNAME = ShutterSpeeds${D}
 INCLUDE = -I../../include -I/usr/include/flycapture
 LIBS = -L../../lib -lflycapture${D} 
 
 OUTDIR = ../../bin
 
-OBJS = ShutterSpeeds_02.o
+OBJS = ShutterSpeeds.o
 
 ${OUTPUTNAME}: ${OBJS}
 	${CC} -o ${OUTPUTNAME} ${OBJS} ${LIBS} ${COMMON_LIBS} 
