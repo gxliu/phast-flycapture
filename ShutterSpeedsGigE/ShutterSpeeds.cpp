@@ -22,6 +22,21 @@
 
 #include "FlyCapture2.h"
 
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <algorithm>
+
+using std::cout;
+using std::endl;
+using std::cin;
+using std::string;
+using std::ofstream;
+using std::remove_if;
+
 using namespace FlyCapture2;
 
 void PrintBuildInfo()
@@ -34,12 +49,12 @@ void PrintBuildInfo()
         "FlyCapture2 library version: %d.%d.%d.%d\n", 
         fc2Version.major, fc2Version.minor, fc2Version.type, fc2Version.build );
 
-    printf( version );
+    cout << version;
 
     char timeStamp[512];
     sprintf( timeStamp, "Application build date: %s %s\n\n", __DATE__, __TIME__ );
 
-    printf( timeStamp );
+    cout << timeStamp;
 }
 
 void PrintCameraInfo( CameraInfo* pCamInfo )
@@ -152,7 +167,7 @@ void PrintError( Error error )
 
 int RunSingleCamera( PGRGuid guid )
 {
-    const int k_numImages = 1000;
+    const int k_numImages = 100;
 
     Error error;
     GigECamera cam;
@@ -188,6 +203,7 @@ int RunSingleCamera( PGRGuid guid )
 
     for (unsigned int i=0; i < numStreamChannels; i++)
     {
+        // get it
         GigEStreamChannel streamChannel;
         error = cam.GetGigEStreamChannelInfo( i, &streamChannel );
         if (error != PGRERROR_OK)
@@ -195,6 +211,30 @@ int RunSingleCamera( PGRGuid guid )
             PrintError( error );
             return -1;
         }
+
+        // modify it
+        unsigned int pkt;
+        unsigned int dly;
+
+        cout << "Enter the packet size (576 to 9000): \n";
+        cin >> pkt;
+
+        cout << "Enter the delay (0 to 6250): \n";
+        cin >> dly;
+
+
+        streamChannel.packetSize = pkt;
+        streamChannel.interPacketDelay = dly;
+
+        // set it
+        error = cam.SetGigEStreamChannelInfo( i, &streamChannel );
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }
+
+
 
         printf( "\nPrinting stream channel information for channel %u:\n", i );
         PrintStreamChannelInfo( &streamChannel );
