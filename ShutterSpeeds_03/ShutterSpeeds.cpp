@@ -107,7 +107,7 @@ string getDir(CameraInfo* pCamInfo) {
     // dir.erase(remove_if(dir.begin(), dir.end(), isspace), dir.end());
 
     const char * d = dir.c_str();
-    puts(d);
+    // puts(d);
 
     if(mkdir(d,0777)==-1) {
         printf("Either there was an error creating the directory or you have already created the directory for that camera. Ctrl C if this is not the case. \n");
@@ -131,7 +131,7 @@ string getPath(string dir) {
     strcat(directory,"/");
     strcat(directory, l);
     // puts(directory);
-    printf("%s", directory);
+    // printf("%s", directory);
     
     const char* path = directory;
 
@@ -224,8 +224,8 @@ int runShutter(Camera& cam, string dir, int ms) {
 
     const int k_numImages = 3;
     Image rawImage; 
-    int imageCnt=0;   
-    while(imageCnt < k_numImages)
+    int imageCnt=1;   
+    while(imageCnt <= k_numImages)
     {                
         // Retrieve an image
         error = cam.RetrieveBuffer( &rawImage );
@@ -253,7 +253,7 @@ int runShutter(Camera& cam, string dir, int ms) {
         // turn dir from string to char*
         const char * c = dir.c_str();
         sprintf( filename, "%s/%d-ms/img-%d.png", c, ms, imageCnt );
-        puts(filename);
+        // puts(filename);
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
         error = convertedImage.Save( filename );
