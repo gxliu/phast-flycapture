@@ -23,18 +23,19 @@
 #include "FlyCapture2.h"
 
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 using std::cout;
 using std::endl;
 using std::cin;
 using std::string;
 using std::ofstream;
-using std::getline;
+
+#include <string.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 
 using namespace FlyCapture2;
@@ -57,20 +58,16 @@ void PrintBuildInfo()
     cout << timeStamp ;
 }
 
-void PrintCameraInfo( CameraInfo* pCamInfo, const char* dir )
+void PrintCameraInfo( CameraInfo* pCamInfo, string dir)
 {
-	ofstream myfile;
-	char lensModel[20];
-	char focalLength[3];
-	cout << "Type Lens Model: ";
-	cin >> lensModel;
-	cout << "Type Lens Focal Length (mm): ";
-	cin >> focalLength;
+    ofstream myfile;
 
     // Create a unique filename
     char filename[512];
-    sprintf( filename, "%s/camera.txt", dir);
-	cout<<filename <<dir;
+
+    // turn dir from string to char*
+    const char * c = dir.c_str();
+    sprintf( filename, "%s/%s.txt", c, c);
 
     myfile.open(filename);
 
@@ -86,20 +83,16 @@ void PrintCameraInfo( CameraInfo* pCamInfo, const char* dir )
         "Sensor - %s\n"
         "Resolution - %s\n"
         "Firmware version - %s\n"
-        "Firmware build time - %s\n\n"
-	"\n*** LENS INFORMATION ***\n"
-	"Lens Model - %s\n"
-	"Focal Length - %s\n\n",
+        "Firmware build time - %s\n\n",
         pCamInfo->serialNumber,
         pCamInfo->modelName,
         pCamInfo->vendorName,
         pCamInfo->sensorInfo,
         pCamInfo->sensorResolution,
         pCamInfo->firmwareVersion,
-        pCamInfo->firmwareBuildTime,
-	lensModel,
-	focalLength );
-
+        pCamInfo->firmwareBuildTime );
+	
+	cout << info;
     myfile << info;
     myfile.close();
 }
@@ -109,27 +102,81 @@ void PrintError( Error error )
     error.PrintErrorTrace();
 }
 
-const char* getDir() {
+string getDir(CameraInfo* pCamInfo) {
+	string dir = pCamInfo->modelName;
+    const char * d = dir.c_str();
 
-    string dir;
-    cout << "Enter your file: ";
-    getline(cin, dir);
-
-
-    const char* c = dir.c_str();
-
-    if(mkdir(c,0777)==-1) {
-        printf("error in creating directory \n");
+    if(mkdir(d,0777)==-1) {
+        printf("Either there was an error creating the directory or you have already created the directory for that camera. Ctrl C if this is not the case. \n");
     } 
 
-    return c;
+    return dir;
 }
 
-int runShutter(Camera& cam, const char* dir, int ms) {
+const char* getPath(string dir) {
+	string lens;
+	char directory[100];
+	cout << "Enter the Lens You Are Testing: ";
+	std::getline(cin, lens);
+	
+	// Concatenates main directory string and sub-directory lens
+	// Lens directory is nested inside the camera model directory
+	// This allows for better organization of data
+	strcpy(directory, dir);
+	strcat(directory,"/");
+	strcat(directory, lens);
+	puts(directory);
+	
+	const char* path = directory;
+
+	if(mkdir(path,0777)==-1) {
+		printf("Either there was an error creating the directory or you have already tested that lens. \n");
+	}
+
+	return path;
+}
+
+int runShutter(Camera& cam, int ms, const char* path) {
     
 
     Error error;
 
+    PropertyType propTypes[7];
+    propTypes[0] = BRIGHTNESS;
+    propTypes[1] = AUTO_EXPOSURE;
+    propTypes[2] = SHARPNESS;
+    propTypes[3] = GAMMA;
+    propTypes[4] = SHUTTER;
+    propTypes[5] = GAIN;
+    propTypes[6] = FRAME_RATE;
+
+    PropertyType propType;
+    Property prop;
+    for(int i=0; i < 7; i++) {
+        
+        propType = propTypes[i];
+        prop.type = propType;
+        error = cam.GetProperty( &prop );
+
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }
+
+        prop.autoManualMode = false;
+        prop.onOff = false;
+
+        error = cam.SetProperty( &prop );
+
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }
+
+        
+    }
     // Retrieve shutter property
     Property shutter;
     shutter.type = SHUTTER;
@@ -159,13 +206,14 @@ int runShutter(Camera& cam, const char* dir, int ms) {
 
     //make directory for this number of milliseconds
     char msdir[512];
-    sprintf( msdir, "%s/%d-ms", dir, ms );
 
-    if(mkdir(msdir,0777)==-1) {
-        printf("error in creating directory \n");
-    } 
+    sprintf( msdir, "%s/%d-ms", path, ms );
 
-    const int k_numImages = 5;
+    //if(mkdir(msdir,0777)==-1) {
+    //    printf("error in creating directory \n");
+    //} 
+
+    const int k_numImages = 3;
     Image rawImage; 
     int imageCnt=0;   
     while(imageCnt < k_numImages)
@@ -178,7 +226,7 @@ int runShutter(Camera& cam, const char* dir, int ms) {
             continue;
         }
 
-        printf( "Grabbed image %d with a %d ms shutter.  \n", imageCnt, ms );
+        printf( "Grabbed image %d with a %d ms shutter.  \n", imageCnt+1, ms );
 
         // Create a converted image
         Image convertedImage;
@@ -193,7 +241,8 @@ int runShutter(Camera& cam, const char* dir, int ms) {
 
         // Create a unique filename
         char filename[512];
-        sprintf( filename, "%s/%d-ms/img-%d.pgm", dir, ms, imageCnt );
+
+        sprintf( filename, "%s/%d-ms/img-%d.png", path, ms, imageCnt+1 );
 
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
@@ -210,13 +259,8 @@ int runShutter(Camera& cam, const char* dir, int ms) {
     return 0;
 }
 
-int RunSingleCamera( PGRGuid guid )
+int RunSingleCamera( PGRGuid guid)
 {
-
-    //const char* dir = 
-    const char s = getDir();
-    const char* dir = s;
-    
 
     Error error;
     Camera cam;
@@ -241,6 +285,10 @@ int RunSingleCamera( PGRGuid guid )
         return -1;
     }
 
+    string dir = getDir(&camInfo);
+    const char* path = getPath(dir);
+
+
     PrintCameraInfo(&camInfo, dir);   
 
     // Start capturing images
@@ -252,7 +300,7 @@ int RunSingleCamera( PGRGuid guid )
     }
 
     //collect ms shutter values
-    int trials = 3;
+    int trials = 4;
     int shuttervals[trials];
 
     for(int n=0; n<trials; n++) {
@@ -260,9 +308,9 @@ int RunSingleCamera( PGRGuid guid )
         cin >> shuttervals[n];
     }
 
-    // run 5 pictures for each of those shutter values
+    // run 3 pictures for each of those shutter values
     for(int n=0; n<trials; n++) {
-        runShutter(cam, dir, shuttervals[n]);
+        runShutter(cam, shuttervals[n], path);
     }
     
 
