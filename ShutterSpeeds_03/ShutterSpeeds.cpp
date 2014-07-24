@@ -222,7 +222,7 @@ int runShutter(Camera& cam, string dir, int ms) {
         printf("error in creating directory \n");
     } 
 
-    const int k_numImages = 5;
+    const int k_numImages = 3;
     Image rawImage; 
     int imageCnt=0;   
     while(imageCnt < k_numImages)
@@ -319,17 +319,19 @@ int RunSingleCamera( PGRGuid guid )
 
     //collect ms shutter values
 
-    // int trials = 4;
-    // int shuttervals[trials];
+    int start;
+    int end;
+    int inc;
 
-    // for(int n=0; n<trials; n++) {
-    //     cout << "Enter the number of ms for a shutter value: \n";
-    //     cin >> shuttervals[n];
-    // }
+    cout << "Enter the number of ms to start at (must be integer): \n";
+    cin >> start;
 
-    int start = 10;
-    int end = 20;
-    int inc = 5;
+    cout << "Enter the number of ms to end at (must be integer): \n";
+    cin >> end;
+
+    cout << "Enter the number of ms to increment by (must be integer): \n";
+    cin >> inc;
+
 
     int shuttervals[1000]; // 1000 is overkill
     int count = 0;
@@ -343,7 +345,7 @@ int RunSingleCamera( PGRGuid guid )
     }
 
 
-    // run 5 pictures for each of those shutter values
+    // run pictures for each of those shutter values
     for(int n=0; n<count; n++) {
         runShutter(cam, path, shuttervals[n]);
     }
