@@ -223,7 +223,7 @@ int runShutter(Camera& cam, string dir, int ms) {
         // turn dir from string to char*
         const char * c = dir.c_str();
         sprintf( filename, "%s/%d-ms/img-%d.png", c, ms, imageCnt );
-
+        puts(filename);
         // Save the image. If a file format is not passed in, then the file
         // extension is parsed to attempt to determine the file format.
         error = convertedImage.Save( filename );
