@@ -65,7 +65,7 @@ void PrintCameraInfo( CameraInfo* pCamInfo, string dir )
     char filename[512];
     // turn dir from string to char*
     const char * c = dir.c_str();
-    sprintf( filename, "%s/camera.txt", c);
+    sprintf( filename, "%s/%s.txt", c, c);
 
     myfile.open(filename);
 
@@ -103,8 +103,8 @@ void PrintError( Error error )
 string getDir(CameraInfo* pCamInfo) {
     string dir = pCamInfo->modelName;
 
-    //get rid of spaces
-    dir.erase(remove_if(dir.begin(), dir.end(), isspace), dir.end());
+    // get rid of spaces
+    // dir.erase(remove_if(dir.begin(), dir.end(), isspace), dir.end());
 
     const char * d = dir.c_str();
     puts(d);
@@ -328,7 +328,7 @@ int RunSingleCamera( PGRGuid guid )
 
     // run 5 pictures for each of those shutter values
     for(int n=0; n<trials; n++) {
-        runShutter(cam, dir, shuttervals[n]);
+        runShutter(cam, path, shuttervals[n]);
     }
     
 
