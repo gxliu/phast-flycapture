@@ -95,8 +95,24 @@ void PrintUSBCameraInfo( CameraInfo* pCamInfo, string dir )
     myfile.close();
 }
 
-void PrintGigECameraInfo( CameraInfo* pCamInfo )
+void PrintGigECameraInfo( CameraInfo* pCamInfo, string dir )
 {
+
+    ofstream myfile;
+
+    // Create a unique filename
+    char filename[512];
+    // turn dir from string to char*
+    const char * c = dir.c_str();
+    sprintf( filename, "%s/%s.txt", c, c);
+
+    myfile.open(filename);
+
+
+    char info[2048];
+
+    
+
     char macAddress[64];
     sprintf( 
         macAddress, 
@@ -135,7 +151,8 @@ void PrintGigECameraInfo( CameraInfo* pCamInfo )
         pCamInfo->defaultGateway.octets[2],
         pCamInfo->defaultGateway.octets[3]);
 
-    printf(
+    sprintf(
+        info, 
         "\n*** CAMERA INFORMATION ***\n"
         "Serial number - %u\n"
         "Camera model - %s\n"
@@ -168,6 +185,10 @@ void PrintGigECameraInfo( CameraInfo* pCamInfo )
         ipAddress,
         subnetMask,
         defaultGateway );
+
+    cout << info;
+    myfile << info;
+    myfile.close();
 }
 
 void PrintStreamChannelInfo( GigEStreamChannel* pStreamChannel )
@@ -502,7 +523,14 @@ int runSingleGigECamera( PGRGuid guid )
         return -1;
     }
 
-    PrintGigECameraInfo(&camInfo);        
+    // Get paths
+
+    string dir = getDir(&camInfo);
+    string path = getPath(dir);
+
+    //back to cam info
+
+    PrintGigECameraInfo(&camInfo, dir);        
 
     unsigned int numStreamChannels = 0;
     error = cam.GetNumStreamChannels( &numStreamChannels );
@@ -660,6 +688,10 @@ int main(int /*argc*/, char** /*argv*/)
         PrintError( error );
         return -1;
     }
+
+    //what flycapture gui does after this line
+
+    sleep(5);
         
 
     // Since this application saves images in the current folder
@@ -687,10 +719,10 @@ int main(int /*argc*/, char** /*argv*/)
 
         printf( "Number of GigE cameras discovered: %u\n", numCamInfo );
 
-        for (unsigned int i=0; i < numCamInfo; i++)
-        {
-            PrintGigECameraInfo( &camInfo[i] );
-        }
+        // for (unsigned int i=0; i < numCamInfo; i++)
+        // {
+        //     PrintGigECameraInfo( &camInfo[i] );
+        // }
 
         unsigned int numCameras;
         error = busMgr.GetNumOfCameras(&numCameras);
