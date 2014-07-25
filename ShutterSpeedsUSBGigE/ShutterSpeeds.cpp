@@ -18,6 +18,15 @@
 // $Id: GigEGrabEx.cpp,v 1.10 2010-06-01 18:19:44 soowei Exp $
 //=============================================================================
 
+
+/* 
+
+NOTE: If more than one camera is plugged in...
+To test the USB cam, type "sudo ./ShutterSpeeds" (USB cams are recognized first by the Bus Manager?)
+To test the Ethernet cam, type "./ShutterSpeeds" (The USB cam won't be recognized if "sudo" isn't used)
+
+*/
+
 #include "stdafx.h"
 
 #include "FlyCapture2.h"
@@ -531,8 +540,6 @@ int runSingleGigECamera( PGRGuid guid )
     Error error;
     GigECamera cam;
 
-    printf( "Connecting to camera...\n" );
-
     // Connect to a camera
     error = cam.Connect(&guid);
     if (error != PGRERROR_OK)
@@ -795,36 +802,38 @@ int main(int /*argc*/, char** /*argv*/)
 
         printf( "Number of cameras enumerated: %u\n", numCameras );
 
-        for (unsigned int i=0; i < numCameras; i++)
+        // for (unsigned int i=0; i < numCameras; i++)
+        // {
+        int i = 0;
+
+        PGRGuid guid;
+        error = busMgr.GetCameraFromIndex(i, &guid);
+        if (error != PGRERROR_OK)
         {
-            PGRGuid guid;
-            error = busMgr.GetCameraFromIndex(i, &guid);
-            if (error != PGRERROR_OK)
-            {
-                PrintError( error );
-                return -1;
-            }
-
-            InterfaceType interfaceType;
-            error = busMgr.GetInterfaceTypeFromGuid( &guid, &interfaceType );
-            if ( error != PGRERROR_OK )
-            {
-                PrintError( error );
-                return -1;
-            }
-
-            if ( interfaceType == INTERFACE_GIGE )
-            {
-                puts("GigE Interface");
-                runSingleGigECamera(guid);
-            }
-
-            else if ( interfaceType == INTERFACE_USB2) {
-                puts("USB Interface");
-                runSingleUSBCamera(guid);
-
-            }
+            PrintError( error );
+            return -1;
         }
+
+        InterfaceType interfaceType;
+        error = busMgr.GetInterfaceTypeFromGuid( &guid, &interfaceType );
+        if ( error != PGRERROR_OK )
+        {
+            PrintError( error );
+            return -1;
+        }
+
+        if ( interfaceType == INTERFACE_GIGE )
+        {
+            puts("GigE Interface");
+            runSingleGigECamera(guid);
+        }
+
+        else if ( interfaceType == INTERFACE_USB2) {
+            puts("USB Interface");
+            runSingleUSBCamera(guid);
+
+        }
+        // }
 
         printf( "Done! Press Enter to exit...\n" );
         getchar();
