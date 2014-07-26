@@ -654,6 +654,10 @@ int main(int /*argc*/, char** /*argv*/)
 
         printf( "Number of cameras enumerated: %u\n", numCameras );
 
+        if (numCameras == 0) {
+            puts("Exiting...");
+            return -1;
+        }
         // for (unsigned int i=0; i < numCameras; i++)
         // {
         int i = 0;
