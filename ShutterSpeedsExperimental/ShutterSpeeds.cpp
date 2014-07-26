@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright ï¿½ 2010 Point Grey Research, Inc. All Rights Reserved.
+// Copyright © 2010 Point Grey Research, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of Point
 // Grey Research, Inc. ("Confidential Information").  You shall not
@@ -30,6 +30,8 @@ To test the Ethernet cam, type "./ShutterSpeeds" (The USB cam won't be recognize
 #include "stdafx.h"
 
 #include "FlyCapture2.h"
+#include "FrameRateCounter.h"
+
 
 #include <string>
 #include <iostream>
@@ -38,6 +40,7 @@ To test the Ethernet cam, type "./ShutterSpeeds" (The USB cam won't be recognize
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <algorithm>
+#include <map>
 
 using std::cout;
 using std::endl;
@@ -346,6 +349,51 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         //with the same shutter value as the old value
     sleep(4);
 
+    // //experiment with the frame rate output
+
+    FrameRateCounter frc;
+
+    // VideoMode currVideoMode;
+    // FrameRate currFrameRate;
+    // Format7ImageSettings currFmt7Settings;
+    // unsigned int currPacketSize = 0;
+
+    // Camera* pCamera = dynamic_cast<Camera*>(&cam);
+
+    // error = pCamera->GetVideoModeAndFrameRate( &currVideoMode, &currFrameRate );        
+    // if (error != PGRERROR_OK)
+    // {
+    //     puts("19.5");
+    //     PrintError( error );
+    //     return -1;
+    // }
+
+    // cout << "Video mode: " << currVideoMode << endl; //23 = VIDEOMODE_FORMAT7
+    // cout << "Frame rate: " << currFrameRate << endl; //8 = FRAMERATE_FORMAT7
+
+
+    // FrameRate fastestFrameRate = NUM_FRAMERATES;
+    // //std::map<Gtk::RadioButton*, FrameRate>::iterator iterFrameRate;
+    // std::map<Gtk::RadioButton*, FrameRate>::reverse_iterator iterFrameRate;
+    
+    // for ( iterFrameRate = m_mapFrameRate.rbegin(); iterFrameRate != m_mapFrameRate.rend(); iterFrameRate++ )
+    // {
+    //     bool supported = false;
+    //     error = pCamera->GetVideoModeAndFrameRateInfo( currVideoMode, iterFrameRate->second, &supported );
+    //     if ( error != PGRERROR_OK )
+    //     {
+    //         puts("19.75");
+    //         PrintError( error );
+    //         return -1;          
+    //     }
+
+    //     if ( supported == true )
+    //     {
+    //         fastestFrameRate = iterFrameRate->second;
+    //         break;
+    //     }
+    // }
+
     //make directory for this number of milliseconds
     char msdir[512];
     const char * d = dir.c_str();
@@ -355,11 +403,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         printf("error in creating directory \n");
     } 
 
-
-
-
-
-    //take 3 images at this certain shutter val
     const int k_numImages = 3;
     Image rawImage; 
     int imageCnt=1;   
@@ -376,26 +419,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         printf( "Grabbed image %d with a %d ms shutter.  \n", imageCnt, ms );
 
-        //print frame rate info
-        ofstream myfile;
-        propType = FRAME_RATE;
-        prop.type = propType;
-        error = cam.GetProperty( &prop );
-
-        if (error != PGRERROR_OK)
-        {
-            puts("19.5");
-            PrintError( error );
-            return -1;
-        }
-
-        char propertyfilename[512];
-        const char * c = dir.c_str();
-        sprintf( propertyfilename, "%s/%d-ms/img-%d-framerate.txt", c, ms, imageCnt);
-        myfile.open(propertyfilename);
-        myfile << prop.absValue;
-        myfile.close();
-
         // Create a converted image
         Image convertedImage;
 
@@ -411,6 +434,7 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         // Create a unique filename
         char filename[512];
         // turn dir from string to char*
+        const char * c = dir.c_str();
         sprintf( filename, "%s/%d-ms/img-%d.png", c, ms, imageCnt );
         // puts(filename);
         // Save the image. If a file format is not passed in, then the file
@@ -457,7 +481,7 @@ int gigESetup(GigECamera& cam) {
         unsigned int pkt;
         unsigned int dly;
 
-        cout << "Enter the packet size.  Lower is safer, but slower. (576 to 9000): \n";
+        cout << "Enter the packet size.  Lower is safer, but slower. (576 to 9000, may change per cam): \n";
         cin >> pkt;
 
         cout << "Enter the delay.  Bigger is safer, but slower.  (0 to 6250): \n";
@@ -677,10 +701,6 @@ int main(int /*argc*/, char** /*argv*/)
 
         printf( "Number of cameras enumerated: %u\n", numCameras );
 
-        if (numCameras == 0) {
-            puts("Exiting...");
-            return -1;
-        }
         // for (unsigned int i=0; i < numCameras; i++)
         // {
         int i = 0;
