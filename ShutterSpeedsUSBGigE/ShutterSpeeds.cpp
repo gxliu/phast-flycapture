@@ -30,6 +30,8 @@ To test the Ethernet cam, type "./ShutterSpeeds" (The USB cam won't be recognize
 #include "stdafx.h"
 
 #include "FlyCapture2.h"
+#include "FrameRateCounter.h"
+
 
 #include <string>
 #include <iostream>
@@ -38,6 +40,7 @@ To test the Ethernet cam, type "./ShutterSpeeds" (The USB cam won't be recognize
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <algorithm>
+#include <map>
 
 using std::cout;
 using std::endl;
@@ -346,6 +349,50 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         //with the same shutter value as the old value
     sleep(4);
 
+    // //experiment with the frame rate output
+
+    FrameRateCounter frc;
+
+    // VideoMode currVideoMode;
+    // FrameRate currFrameRate;
+    // Format7ImageSettings currFmt7Settings;
+    // unsigned int currPacketSize = 0;
+
+    // Camera* pCamera = dynamic_cast<Camera*>(&cam);
+
+    // error = pCamera->GetVideoModeAndFrameRate( &currVideoMode, &currFrameRate );        
+    // if (error != PGRERROR_OK)
+    // {
+    //     puts("19.5");
+    //     PrintError( error );
+    //     return -1;
+    // }
+
+    // cout << "Video mode: " << currVideoMode << endl; //23 = VIDEOMODE_FORMAT7
+    // cout << "Frame rate: " << currFrameRate << endl; //8 = FRAMERATE_FORMAT7
+
+
+    // FrameRate fastestFrameRate = NUM_FRAMERATES;
+    // //std::map<Gtk::RadioButton*, FrameRate>::iterator iterFrameRate;
+    // std::map<Gtk::RadioButton*, FrameRate>::reverse_iterator iterFrameRate;
+    
+    // for ( iterFrameRate = m_mapFrameRate.rbegin(); iterFrameRate != m_mapFrameRate.rend(); iterFrameRate++ )
+    // {
+    //     bool supported = false;
+    //     error = pCamera->GetVideoModeAndFrameRateInfo( currVideoMode, iterFrameRate->second, &supported );
+    //     if ( error != PGRERROR_OK )
+    //     {
+    //         puts("19.75");
+    //         PrintError( error );
+    //         return -1;          
+    //     }
+
+    //     if ( supported == true )
+    //     {
+    //         fastestFrameRate = iterFrameRate->second;
+    //         break;
+    //     }
+    // }
 
     //make directory for this number of milliseconds
     char msdir[512];
@@ -434,7 +481,7 @@ int gigESetup(GigECamera& cam) {
         unsigned int pkt;
         unsigned int dly;
 
-        cout << "Enter the packet size.  Lower is safer, but slower. (576 to 9000): \n";
+        cout << "Enter the packet size.  Lower is safer, but slower. (576 to 9000, may change per cam): \n";
         cin >> pkt;
 
         cout << "Enter the delay.  Bigger is safer, but slower.  (0 to 6250): \n";

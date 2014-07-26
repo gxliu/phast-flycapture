@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by GigEGrabEx.rc
+// Used by FlyCapture2Test.rc
 
 // Next default values for new objects
 // 
