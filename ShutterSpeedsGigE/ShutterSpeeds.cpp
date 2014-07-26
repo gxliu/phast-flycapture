@@ -18,15 +18,6 @@
 // $Id: GigEGrabEx.cpp,v 1.10 2010-06-01 18:19:44 soowei Exp $
 //=============================================================================
 
-
-/* 
-
-NOTE: If more than one camera is plugged in...
-To test the USB cam, type "sudo ./ShutterSpeeds" (USB cams are recognized first by the Bus Manager?)
-To test the Ethernet cam, type "./ShutterSpeeds" (The USB cam won't be recognized if "sudo" isn't used)
-
-*/
-
 #include "stdafx.h"
 
 #include "FlyCapture2.h"
@@ -241,6 +232,7 @@ string getDir(CameraInfo* pCamInfo) {
     // dir.erase(remove_if(dir.begin(), dir.end(), isspace), dir.end());
 
     const char * d = dir.c_str();
+    // puts(d);
 
     if(mkdir(d,0777)==-1) {
         printf("Either there was an error creating the directory or you have already created the directory for that camera. Ctrl C if this is not the case. \n");
@@ -263,6 +255,8 @@ string getPath(string dir) {
     strcpy(directory, d);
     strcat(directory,"/");
     strcat(directory, l);
+    // puts(directory);
+    // printf("%s", directory);
     
     const char* path = directory;
 
@@ -276,8 +270,8 @@ string getPath(string dir) {
     return p;
 }
 
-
-int runShutter(CameraBase& cam, string dir, int ms) {
+int runShutter(Camera& cam, string dir, int ms) {
+    
 
     Error error;
 
@@ -300,7 +294,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         if (error != PGRERROR_OK)
         {
-            puts("16");
             PrintError( error );
             return -1;
         }
@@ -312,7 +305,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         if (error != PGRERROR_OK)
         {
-            puts("17");
             PrintError( error );
             return -1;
         }
@@ -326,7 +318,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
     if (error != PGRERROR_OK)
     {
-        puts("18");
         PrintError( error );
         return -1;
     }
@@ -336,7 +327,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
     if (error != PGRERROR_OK)
     {
-        puts("19");
         PrintError( error );
         return -1;
     }
@@ -344,8 +334,9 @@ int runShutter(CameraBase& cam, string dir, int ms) {
     // Let it update...it takes a while...
     // Otherwise the first pictures comes out 
         //with the same shutter value as the old value
-    sleep(4);
+    sleep(5);
 
+    
 
     //make directory for this number of milliseconds
     char msdir[512];
@@ -365,7 +356,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         error = cam.RetrieveBuffer( &rawImage );
         if (error != PGRERROR_OK)
         {
-            puts("20");
             PrintError( error );
             continue;
         }
@@ -379,7 +369,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         error = rawImage.Convert( PIXEL_FORMAT_MONO8, &convertedImage );
         if (error != PGRERROR_OK)
         {
-            puts("21");
             PrintError( error );
             return -1;
         }  
@@ -395,7 +384,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         error = convertedImage.Save( filename );
         if (error != PGRERROR_OK)
         {
-            puts("22");
             PrintError( error );
             return -1;
         }
@@ -406,97 +394,18 @@ int runShutter(CameraBase& cam, string dir, int ms) {
     return 0;
 }
 
-int gigESetup(GigECamera& cam) {
-    Error error;
+int runSingleUSBCamera( PGRGuid guid ) {
 
-    unsigned int numStreamChannels = 0;
-    error = cam.GetNumStreamChannels( &numStreamChannels );
-    if (error != PGRERROR_OK)
-    {
-        puts("1");
-        PrintError( error );
-        return -1;
-    }
-
-    for (unsigned int i=0; i < numStreamChannels; i++)
-    {
-        // get it
-        GigEStreamChannel streamChannel;
-        error = cam.GetGigEStreamChannelInfo( i, &streamChannel );
-        if (error != PGRERROR_OK)
-        {
-            puts("2");
-            PrintError( error );
-            return -1;
-        }
-
-        // modify it
-        unsigned int pkt;
-        unsigned int dly;
-
-        cout << "Enter the packet size.  Lower is safer, but slower. (576 to 9000): \n";
-        cin >> pkt;
-
-        cout << "Enter the delay.  Bigger is safer, but slower.  (0 to 6250): \n";
-        cin >> dly;
-
-
-        streamChannel.packetSize = pkt;
-        streamChannel.interPacketDelay = dly;
-
-        // set it
-        error = cam.SetGigEStreamChannelInfo( i, &streamChannel );
-        if (error != PGRERROR_OK)
-        {
-            puts("3");
-            PrintError( error );
-            return -1;
-        }
-
-
-
-        printf( "\nPrinting stream channel information for channel %u:\n", i );
-        PrintStreamChannelInfo( &streamChannel );
-    }    
-
-    printf( "Querying GigE image setting information...\n" );
-
-    GigEImageSettingsInfo imageSettingsInfo;
-    error = cam.GetGigEImageSettingsInfo( &imageSettingsInfo );
-    if (error != PGRERROR_OK)
-    {
-        puts("4");
-        PrintError( error );
-        return -1;
-    }
-
-    GigEImageSettings imageSettings;
-    imageSettings.offsetX = 0;
-    imageSettings.offsetY = 0;
-    imageSettings.height = imageSettingsInfo.maxHeight;
-    imageSettings.width = imageSettingsInfo.maxWidth;
-    imageSettings.pixelFormat = PIXEL_FORMAT_MONO8;
-
-    printf( "Setting GigE image settings...\n" );
-
-    error = cam.SetGigEImageSettings( &imageSettings );
-    if (error != PGRERROR_OK)
-    {
-        puts("5");
-        PrintError( error );
-        return -1;
-    }
-}
-
-int runSingleCamera(PGRGuid guid, CameraBase& cam, InterfaceType interfaceType) {
+    
+    
 
     Error error;
+    Camera cam;
 
     // Connect to a camera
     error = cam.Connect(&guid);
     if (error != PGRERROR_OK)
     {
-        puts("6");
         PrintError( error );
         return -1;
     }
@@ -504,36 +413,33 @@ int runSingleCamera(PGRGuid guid, CameraBase& cam, InterfaceType interfaceType) 
     // Get the camera information
     CameraInfo camInfo;
     error = cam.GetCameraInfo(&camInfo);
+
+
+
     if (error != PGRERROR_OK)
     {
-        puts("7");
         PrintError( error );
         return -1;
     }
 
+
     // Get paths
+
     string dir = getDir(&camInfo);
     string path = getPath(dir);
 
     //Print cam info
-    if(interfaceType == INTERFACE_GIGE) {
-        PrintGigECameraInfo(&camInfo, dir);
-        gigESetup(dynamic_cast<GigECamera&>(cam)); //get packet info, print stream info
-    }
-    else if (interfaceType == INTERFACE_USB2) {
-        PrintUSBCameraInfo(&camInfo, dir);
-    }
-    
+
+    PrintUSBCameraInfo(&camInfo, dir);   
+
 
     // Start capturing images
     error = cam.StartCapture();
     if (error != PGRERROR_OK)
     {
-        puts("8");
         PrintError( error );
         return -1;
     }
-
 
     //collect ms shutter values
 
@@ -567,13 +473,192 @@ int runSingleCamera(PGRGuid guid, CameraBase& cam, InterfaceType interfaceType) 
     for(int n=0; n<count; n++) {
         runShutter(cam, path, shuttervals[n]);
     }
+    
 
+    
 
     // Stop capturing images
     error = cam.StopCapture();
     if (error != PGRERROR_OK)
     {
-        puts("9");
+        PrintError( error );
+        return -1;
+    }      
+
+    
+    // Disconnect the camera
+    error = cam.Disconnect();
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    return 0;
+}
+
+int runSingleGigECamera( PGRGuid guid )
+{
+    const int k_numImages = 100;
+
+    Error error;
+    GigECamera cam;
+
+    printf( "Connecting to camera...\n" );
+
+    // Connect to a camera
+    error = cam.Connect(&guid);
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    // Get the camera information
+    CameraInfo camInfo;
+    error = cam.GetCameraInfo(&camInfo);
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    // Get paths
+
+    string dir = getDir(&camInfo);
+    string path = getPath(dir);
+
+    //back to cam info
+
+    PrintGigECameraInfo(&camInfo, dir);        
+
+    unsigned int numStreamChannels = 0;
+    error = cam.GetNumStreamChannels( &numStreamChannels );
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    for (unsigned int i=0; i < numStreamChannels; i++)
+    {
+        // get it
+        GigEStreamChannel streamChannel;
+        error = cam.GetGigEStreamChannelInfo( i, &streamChannel );
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }
+
+        // modify it
+        unsigned int pkt;
+        unsigned int dly;
+
+        cout << "Enter the packet size.  Lower is safer, but slower. (576 to 9000): \n";
+        cin >> pkt;
+
+        cout << "Enter the delay.  Bigger is safer, but slower.  (0 to 6250): \n";
+        cin >> dly;
+
+
+        streamChannel.packetSize = pkt;
+        streamChannel.interPacketDelay = dly;
+
+        // set it
+        error = cam.SetGigEStreamChannelInfo( i, &streamChannel );
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }
+
+
+
+        printf( "\nPrinting stream channel information for channel %u:\n", i );
+        PrintStreamChannelInfo( &streamChannel );
+    }    
+
+    printf( "Querying GigE image setting information...\n" );
+
+    GigEImageSettingsInfo imageSettingsInfo;
+    error = cam.GetGigEImageSettingsInfo( &imageSettingsInfo );
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    GigEImageSettings imageSettings;
+    imageSettings.offsetX = 0;
+    imageSettings.offsetY = 0;
+    imageSettings.height = imageSettingsInfo.maxHeight;
+    imageSettings.width = imageSettingsInfo.maxWidth;
+    imageSettings.pixelFormat = PIXEL_FORMAT_MONO8;
+
+    printf( "Setting GigE image settings...\n" );
+
+    error = cam.SetGigEImageSettings( &imageSettings );
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    printf( "Starting image capture...\n" );
+
+    // Start capturing images
+    error = cam.StartCapture();
+    if (error != PGRERROR_OK)
+    {
+        PrintError( error );
+        return -1;
+    }
+
+    Image rawImage;  
+    Image convertedImage;
+    for ( int imageCnt=0; imageCnt < k_numImages; imageCnt++ )
+    {              
+        // Retrieve an image
+        error = cam.RetrieveBuffer( &rawImage );
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            continue;
+        }
+
+        printf( "Grabbed image %d\n", imageCnt );
+
+        // Convert the raw image
+        error = rawImage.Convert( PIXEL_FORMAT_RGBU, &convertedImage );
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        }  
+
+        
+        // Create a unique filename
+        char filename[512];
+        sprintf( filename, "GigEGrabEx-%u-%d.png", camInfo.serialNumber, imageCnt );
+
+        // Save the image. If a file format is not passed in, then the file
+        // extension is parsed to attempt to determine the file format.
+        error = convertedImage.Save( filename );
+        if (error != PGRERROR_OK)
+        {
+            PrintError( error );
+            return -1;
+        } 
+        
+    }         
+
+    printf( "Stopping capture...\n" );
+
+    // Stop capturing images
+    error = cam.StopCapture();
+    if (error != PGRERROR_OK)
+    {
         PrintError( error );
         return -1;
     }      
@@ -582,14 +667,12 @@ int runSingleCamera(PGRGuid guid, CameraBase& cam, InterfaceType interfaceType) 
     error = cam.Disconnect();
     if (error != PGRERROR_OK)
     {
-        puts("10");
         PrintError( error );
         return -1;
     }
 
     return 0;
 }
-
 
 int main(int /*argc*/, char** /*argv*/)
 {   
@@ -602,14 +685,13 @@ int main(int /*argc*/, char** /*argv*/)
     error = BusManager::ForceAllIPAddressesAutomatically();
     if (error != PGRERROR_OK)
     {
-        puts("11");
         PrintError( error );
         return -1;
     }
 
     //what flycapture gui does after this line
 
-    sleep(3);
+    sleep(5);
         
 
     // Since this application saves images in the current folder
@@ -631,7 +713,6 @@ int main(int /*argc*/, char** /*argv*/)
     error = BusManager::DiscoverGigECameras( camInfo, &numCamInfo );
     if (error != PGRERROR_OK)
     {
-        puts("12");
         PrintError( error );
         return -1;
     }
@@ -647,51 +728,42 @@ int main(int /*argc*/, char** /*argv*/)
         error = busMgr.GetNumOfCameras(&numCameras);
         if (error != PGRERROR_OK)
         {
-            puts("13");
             PrintError( error );
             return -1;
         }
 
         printf( "Number of cameras enumerated: %u\n", numCameras );
 
-        // for (unsigned int i=0; i < numCameras; i++)
-        // {
-        int i = 0;
-
-        PGRGuid guid;
-        error = busMgr.GetCameraFromIndex(i, &guid);
-        if (error != PGRERROR_OK)
+        for (unsigned int i=0; i < numCameras; i++)
         {
-            puts("14");
-            PrintError( error );
-            return -1;
+            PGRGuid guid;
+            error = busMgr.GetCameraFromIndex(i, &guid);
+            if (error != PGRERROR_OK)
+            {
+                PrintError( error );
+                return -1;
+            }
+
+            InterfaceType interfaceType;
+            error = busMgr.GetInterfaceTypeFromGuid( &guid, &interfaceType );
+            if ( error != PGRERROR_OK )
+            {
+                PrintError( error );
+                return -1;
+            }
+
+            if ( interfaceType == INTERFACE_GIGE )
+            {
+                puts("GigE Interface");
+                runSingleGigECamera(guid);
+            }
+
+            else if ( interfaceType == INTERFACE_USB2) {
+                puts("USB Interface");
+                runSingleUSBCamera(guid);
+
+            }
         }
-
-        InterfaceType interfaceType;
-        error = busMgr.GetInterfaceTypeFromGuid( &guid, &interfaceType );
-        if ( error != PGRERROR_OK )
-        {
-            puts("15");
-            PrintError( error );
-            return -1;
-        }
-
-        if ( interfaceType == INTERFACE_GIGE )
-        {
-            puts("GigE Interface");
-            GigECamera cam;
-            runSingleCamera(guid, cam, interfaceType);
-        }
-
-        else if ( interfaceType == INTERFACE_USB2) {
-            puts("USB Interface");
-            Camera cam;
-            runSingleCamera(guid, cam, interfaceType);
-
-        }
-        // }
-
-        
 
         printf( "Done! Press Enter to exit...\n" );
         getchar();
