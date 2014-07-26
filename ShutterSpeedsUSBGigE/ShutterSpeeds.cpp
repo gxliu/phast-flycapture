@@ -306,7 +306,7 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         }
 
         prop.autoManualMode = false;
-        prop.onOff = false;
+        // prop.onOff = false;
 
         error = cam.SetProperty( &prop );
 
