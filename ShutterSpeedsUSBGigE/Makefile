@@ -2,13 +2,15 @@
 # To compile the debug verison need to overwrite CXXFLAGS variable to include -ggdb
 
 CC = g++ 
+CFLAGS=`pkg-config --cflags --libs  glib-2.0`
 OUTPUTNAME = ShutterSpeeds${D}
-INCLUDE = -I../../include -I/usr/include/flycapture 
+INCLUDE = -I../../include -I/usr/include/flycapture \
+			-I/usr/include/glib-2.0
 LIBS = -L../../lib -lflycapture${D} 
 
 OUTDIR = ../../bin
 
-OBJS = ShutterSpeeds.o
+OBJS = ShutterSpeeds.o FrameRateCounter.o
 
 ${OUTPUTNAME}: ${OBJS}
 	${CC} -o ${OUTPUTNAME} ${OBJS} ${LIBS} ${COMMON_LIBS} 

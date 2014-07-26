@@ -1,0 +1,28 @@
+# PHAST makefile
+
+CC = g++
+OUTPUT_NAME = PHAST${D}
+OUTDIR = ../bin
+CFLAGS = -c -WALL
+FLYCAP_INCLUDE = -I../../include -I/usr/include/flycapture
+FLYCAP_LIBS = -L../../flycapture/lib -lflycapture${D}
+
+SOURCES = PHAST.cpp
+
+OBJS = $(SOURCES: .cpp = .o)
+
+$(OUTPUT_NAME): ${OBJS}
+	${CC} -o ${OUTPUT_NAME} ${OBJS} ${FLYCAP_LIBS} ${COMMON_LIBS}
+	mv ${OUTPUT_NAME} ${OUTDIR}
+
+%.o: %.cpp
+	${CC} ${CFLAGS} ${FLYCAP_INCLUDE} $*.cpp
+
+clean_obj:
+	rm -f ${OBJS} @echo "all clean"
+
+clean:
+	rm -f ${OUTDIR}/${OUTPUT_NAME} ${OBJS} @echo "all clean"
+
+
+
