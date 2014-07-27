@@ -279,6 +279,9 @@ string getPath(string dir) {
 
 int runShutter(CameraBase& cam, string dir, int ms) {
 
+    //shouldn't be running this property change every time
+    //refactor
+
     Error error;
 
     PropertyType propTypes[7];
@@ -305,8 +308,23 @@ int runShutter(CameraBase& cam, string dir, int ms) {
             return -1;
         }
 
-        prop.autoManualMode = false;
+        // prop.autoManualMode = false;
         // prop.onOff = false;
+        if(i == 3) {
+            //set gamma to 0
+            //but lowest it will go is 0.5!
+            prop.onOff = true;
+            puts("setting gamma val to 0");
+            prop.absValue = 0.0;
+        }
+
+        if(i == 4) {
+            puts("turning off shutter auto");
+            prop.autoManualMode = false;
+        } else
+        {
+            prop.autoManualMode = true;
+        }
 
         error = cam.SetProperty( &prop );
 
