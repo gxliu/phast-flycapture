@@ -238,7 +238,7 @@ string getDir(CameraInfo* pCamInfo) {
     string dir = pCamInfo->modelName;
 
     // get rid of spaces
-    // dir.erase(remove_if(dir.begin(), dir.end(), isspace), dir.end());
+    dir.erase(remove_if(dir.begin(), dir.end(), isspace), dir.end());
 
     const char * d = dir.c_str();
 
@@ -308,8 +308,8 @@ int runShutter(CameraBase& cam, string dir, int ms) {
             return -1;
         }
 
-        // prop.autoManualMode = false;
-        // prop.onOff = false;
+        prop.onOff = false;
+        
         if(i == 3) {
             //set gamma to 0
             //but lowest it will go is 0.5!
@@ -561,7 +561,7 @@ int runSingleCamera(PGRGuid guid, CameraBase& cam, InterfaceType interfaceType) 
         PrintGigECameraInfo(&camInfo, dir);
         gigESetup(dynamic_cast<GigECamera&>(cam)); //get packet info, print stream info
     }
-    else if (interfaceType == INTERFACE_USB2) {
+    else {
         PrintUSBCameraInfo(&camInfo, dir);
     }
     
@@ -728,7 +728,7 @@ int main(int /*argc*/, char** /*argv*/)
             runSingleCamera(guid, cam, interfaceType);
         }
 
-        else if ( interfaceType == INTERFACE_USB2) {
+        else {
             puts("USB Interface");
             Camera cam;
             runSingleCamera(guid, cam, interfaceType);
