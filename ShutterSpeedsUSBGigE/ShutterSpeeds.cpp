@@ -468,23 +468,23 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         sprintf(
         info, 
-        "Property - Value (Is Property Present?)\n"
-        "---------------------------------------\n"
-        "Brightness - %f percent  (%d)\n"
-        "Auto exposure - %f EV  (%d)\n"
-        "Sharpness - %f (%d)\n"
-        "White balance - %f (%d)\n"
-        "Hue - %f (%d)\n"
-        "Saturation - %f (%d)\n"
-        "Gamma - %f (%d)\n"
-        "Iris - %f (%d)\n"
-        "Focus - %f (%d)\n"
-        "Zoom - %f (%d)\n"
-        "Pan - %f (%d)\n"
-        "Tilt - %f (%d)\n"
-        "Shutter - %f ms  (%d)\n"
-        "Gain - %f dB  (%d)\n"
-        "Frame rate - %f fps  (%d)\n",
+        "Property\t\t\tValue\t\t\t\t(Is Property Present?)\n"
+        "---------------------------------------------------------------\n"
+        "Brightness\t\t\t%9f percent\t(%d)\n"
+        "Auto exposure\t\t%9f EV\t\t(%d)\n"
+        "Sharpness\t\t\t%9f\t\t\t(%d)\n"
+        "White balance\t\t%9f\t\t\t(%d)\n"
+        "Hue\t\t\t\t\t%9f\t\t\t(%d)\n"
+        "Saturation\t\t\t%9f\t\t\t(%d)\n"
+        "Gamma\t\t\t\t%9f\t\t\t(%d)\n"
+        "Iris\t\t\t\t%9f\t\t\t(%d)\n"
+        "Focus\t\t\t\t%9f\t\t\t(%d)\n"
+        "Zoom\t\t\t\t%9f\t\t\t(%d)\n"
+        "Pan\t\t\t\t\t%9f\t\t\t(%d)\n"
+        "Tilt\t\t\t\t%9f\t\t\t(%d)\n"
+        "Shutter\t\t\t\t%9f ms\t\t(%d)\n"
+        "Gain\t\t\t\t%9f dB\t\t(%d)\n"
+        "Frame rate\t\t\t%9f fps\t\t(%d)\n",
         propAbsValues[0],
         propPresent[0],
         propAbsValues[1],
