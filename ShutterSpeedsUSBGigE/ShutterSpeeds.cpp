@@ -307,24 +307,25 @@ int runShutter(CameraBase& cam, string dir, int ms) {
             PrintError( error );
             return -1;
         }
-	// Turns off frame rate
-	if(i==6 || i==2) {
-		prop.onOff = false;
-	}
-	// Turns on all other properties
-	else {
-       		prop.onOff = true;
-	}      
+        // Turns off frame rate
+        if(propType==FRAME_RATE || propType==SHARPNESS) {
+            prop.onOff = false;
+        }
+        // Turns on all other properties
+        else {
+                prop.onOff = true;
+        }      
 
-        if(i == 3) {
+        if(propType== GAMMA) {
             //set gamma to 0
             //but lowest it will go is 0.5!
             puts("setting gamma val to 0");
             prop.absValue = 0.0;
         }
-	// Turns auto mode off for shutter
-        if(i == 4 || i==2) {
-            	prop.autoManualMode = false;
+
+        // Turns auto mode off for shutter
+        if(propType == SHUTTER || propType==SHARPNESS) {
+                prop.autoManualMode = false;
         } else
         {
             prop.autoManualMode = true;
@@ -339,8 +340,6 @@ int runShutter(CameraBase& cam, string dir, int ms) {
             PrintError( error );
             return -1;
         }
-
-        
     }
     // Retrieve shutter property
     Property shutter;
@@ -414,9 +413,68 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         char propertyfilename[512];
         const char * c = dir.c_str();
-        sprintf( propertyfilename, "%s/%d-ms/img-%d-framerate.txt", c, ms, imageCnt);
+        sprintf( propertyfilename, "%s/%d-ms/img-%d-camsettings.txt", c, ms, imageCnt);
         myfile.open(propertyfilename);
-        myfile << prop.absValue;
+
+
+        char info[2048];
+
+        //uses 0 and 1 for true and false of whether property is present
+
+        sprintf(
+        info, 
+        "\n*** CAMERA SETTINGS ***\n"
+        "Brightness - %f\n"
+        "Auto exposure - %f\n"
+        "Sharpness - %f\n"
+        "White balance - %f\n"
+        "Hue - %f\n"
+        "Saturation - %f\n"
+        "Gamma - %f\n"
+        "Iris - %f\n"
+        "Focus - %f\n"
+        "Zoom - %f\n"
+        "Pan - %f\n"
+        "Tilt - %f\n"
+        "Shutter - %f\n"
+        "Gain - %f\n"
+        "Frame rate - %f\n\n",
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+        // pCamInfo->serialNumber,
+        // pCamInfo->modelName,
+        // pCamInfo->vendorName,
+        // pCamInfo->sensorInfo,
+        // pCamInfo->sensorResolution,
+        // pCamInfo->firmwareVersion,
+        // pCamInfo->firmwareBuildTime,
+        // pCamInfo->gigEMajorVersion,
+        // pCamInfo->gigEMinorVersion,
+        // pCamInfo->userDefinedName,
+        // pCamInfo->xmlURL1,
+        // pCamInfo->xmlURL2,
+        // macAddress,
+        // ipAddress,
+        // subnetMask,
+        // defaultGateway 
+        );
+
+        //myfile << prop.absValue;
+        
+        myfile << info;
         myfile.close();
 
         // Create a converted image
