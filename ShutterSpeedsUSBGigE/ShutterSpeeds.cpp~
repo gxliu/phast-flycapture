@@ -323,7 +323,7 @@ int runShutter(CameraBase& cam, string dir, int ms) {
             prop.absValue = 0.0;
         }
 	// Turns auto mode off for shutter
-        if(i == 4 || i==2) {
+        if(i == 4) {
             	prop.autoManualMode = false;
         } else
         {
