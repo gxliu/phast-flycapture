@@ -284,18 +284,29 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
     Error error;
 
-    PropertyType propTypes[7];
+    PropertyType propTypes[15];
     propTypes[0] = BRIGHTNESS;
     propTypes[1] = AUTO_EXPOSURE;
     propTypes[2] = SHARPNESS;
-    propTypes[3] = GAMMA;
-    propTypes[4] = SHUTTER;
-    propTypes[5] = GAIN;
-    propTypes[6] = FRAME_RATE;
+    propTypes[3] = WHITE_BALANCE;
+    propTypes[4] = HUE;
+    propTypes[5] = SATURATION;
+    propTypes[6] = GAMMA;
+    propTypes[7] = IRIS;
+    propTypes[8] = FOCUS;
+    propTypes[9] = ZOOM;
+    propTypes[10] = PAN;
+    propTypes[11] = TILT;
+    propTypes[12] = SHUTTER;
+    propTypes[13] = GAIN;
+    propTypes[14] = FRAME_RATE;
+
+    int propPresent[15];
+    float propAbsValues[15];
 
     PropertyType propType;
     Property prop;
-    for(int i=0; i < 7; i++) {
+    for(int i=0; i < 15; i++) {
         
         propType = propTypes[i];
         prop.type = propType;
@@ -307,39 +318,52 @@ int runShutter(CameraBase& cam, string dir, int ms) {
             PrintError( error );
             return -1;
         }
-        // Turns off frame rate
-        if(propType==FRAME_RATE || propType==SHARPNESS) {
-            prop.onOff = false;
-        }
-        // Turns on all other properties
-        else {
+
+        if(prop.present) {
+            propPresent[i] = 1;
+
+            
+            // Turns off frame rate
+            if(propType==FRAME_RATE || propType==SHARPNESS) {
+                prop.onOff = false;
+            }
+            // Turns on all other properties
+            else {
                 prop.onOff = true;
-        }      
+            }      
 
-        if(propType== GAMMA) {
-            //set gamma to 0
-            //but lowest it will go is 0.5!
-            puts("setting gamma val to 0");
-            prop.absValue = 0.0;
+            if(propType== GAMMA) {
+                //set gamma to 0
+                //but lowest it will go is 0.5!
+                puts("setting gamma val to 0");
+                prop.absValue = 0.0;
+            }
+
+            // Turns auto mode off for shutter
+            if(propType == SHUTTER || propType==SHARPNESS) {
+                    prop.autoManualMode = false;
+            } else
+            {
+                prop.autoManualMode = true;
+            }
+            
+
+
+            error = cam.SetProperty( &prop );
+
+            if (error != PGRERROR_OK)
+            {
+                puts("17");
+                PrintError( error );
+                return -1;
+            }
         }
 
-        // Turns auto mode off for shutter
-        if(propType == SHUTTER || propType==SHARPNESS) {
-                prop.autoManualMode = false;
-        } else
-        {
-            prop.autoManualMode = true;
+        else {
+            propPresent[i] = 0;
         }
- 
 
-        error = cam.SetProperty( &prop );
-
-        if (error != PGRERROR_OK)
-        {
-            puts("17");
-            PrintError( error );
-            return -1;
-        }
+        
     }
     // Retrieve shutter property
     Property shutter;
@@ -406,7 +430,7 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         if (error != PGRERROR_OK)
         {
-            puts("19.5");
+            puts("20.5");
             PrintError( error );
             return -1;
         }
@@ -419,13 +443,32 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         char info[2048];
 
+        for(int i=0; i < 15; i++) {
+        
+            propType = propTypes[i];
+            prop.type = propType;
+            error = cam.GetProperty( &prop );
+
+            if (error != PGRERROR_OK)
+            {
+                puts("20.75");
+                PrintError( error );
+                return -1;
+            }
+
+            propAbsValues[i] = prop.absValue;
+
+
+        
+        }
+
         //uses 0 and 1 for true and false of whether property is present
 
         sprintf(
         info, 
         "\n*** CAMERA SETTINGS ***\n"
-        "Brightness - %f\n"
-        "Auto exposure - %f\n"
+        "Brightness - %f percent \n"
+        "Auto exposure - %f EV \n"
         "Sharpness - %f\n"
         "White balance - %f\n"
         "Hue - %f\n"
@@ -436,24 +479,24 @@ int runShutter(CameraBase& cam, string dir, int ms) {
         "Zoom - %f\n"
         "Pan - %f\n"
         "Tilt - %f\n"
-        "Shutter - %f\n"
-        "Gain - %f\n"
-        "Frame rate - %f\n\n",
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1
+        "Shutter - %f ms \n"
+        "Gain - %f dB \n"
+        "Frame rate - %f fps \n\n",
+        propAbsValues[0],
+        propAbsValues[1],
+        propAbsValues[2],
+        propAbsValues[3],
+        propAbsValues[4],
+        propAbsValues[5],
+        propAbsValues[6],
+        propAbsValues[7],
+        propAbsValues[8],
+        propAbsValues[9],
+        propAbsValues[10],
+        propAbsValues[11],
+        propAbsValues[12],
+        propAbsValues[13],
+        propAbsValues[14]
         // pCamInfo->serialNumber,
         // pCamInfo->modelName,
         // pCamInfo->vendorName,
