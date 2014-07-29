@@ -457,6 +457,7 @@ int runShutter(CameraBase& cam, string dir, int ms) {
             }
 
             propAbsValues[i] = prop.absValue;
+            
 
 
         
@@ -464,51 +465,69 @@ int runShutter(CameraBase& cam, string dir, int ms) {
 
         //uses 0 and 1 for true and false of whether property is present
 
+
         sprintf(
         info, 
-        "\n*** CAMERA SETTINGS ***\n"
-        "Brightness - %f percent \n"
-        "Auto exposure - %f EV \n"
-        "Sharpness - %f\n"
-        "White balance - %f\n"
-        "Hue - %f\n"
-        "Saturation - %f\n"
-        "Gamma - %f\n"
-        "Iris - %f\n"
-        "Focus - %f\n"
-        "Zoom - %f\n"
-        "Pan - %f\n"
-        "Tilt - %f\n"
-        "Shutter - %f ms \n"
-        "Gain - %f dB \n"
-        "Frame rate - %f fps \n\n",
+        "Property - Value (Is Property Present?)\n"
+        "---------------------------------------\n"
+        "Brightness - %f percent  (%d)\n"
+        "Auto exposure - %f EV  (%d)\n"
+        "Sharpness - %f (%d)\n"
+        "White balance - %f (%d)\n"
+        "Hue - %f (%d)\n"
+        "Saturation - %f (%d)\n"
+        "Gamma - %f (%d)\n"
+        "Iris - %f (%d)\n"
+        "Focus - %f (%d)\n"
+        "Zoom - %f (%d)\n"
+        "Pan - %f (%d)\n"
+        "Tilt - %f (%d)\n"
+        "Shutter - %f ms  (%d)\n"
+        "Gain - %f dB  (%d)\n"
+        "Frame rate - %f fps  (%d)\n",
         propAbsValues[0],
+        propPresent[0],
         propAbsValues[1],
+        propPresent[1],
         propAbsValues[2],
+        propPresent[2],
         propAbsValues[3],
+        propPresent[3],
         propAbsValues[4],
+        propPresent[4],
         propAbsValues[5],
+        propPresent[5],
         propAbsValues[6],
+        propPresent[6],
         propAbsValues[7],
+        propPresent[7],
         propAbsValues[8],
+        propPresent[8],
         propAbsValues[9],
+        propPresent[9],
         propAbsValues[10],
+        propPresent[10],
         propAbsValues[11],
+        propPresent[11],
         propAbsValues[12],
+        propPresent[12],
         propAbsValues[13],
-        propAbsValues[14]
-        // pCamInfo->serialNumber,
-        // pCamInfo->modelName,
-        // pCamInfo->vendorName,
-        // pCamInfo->sensorInfo,
-        // pCamInfo->sensorResolution,
-        // pCamInfo->firmwareVersion,
-        // pCamInfo->firmwareBuildTime,
-        // pCamInfo->gigEMajorVersion,
-        // pCamInfo->gigEMinorVersion,
-        // pCamInfo->userDefinedName,
-        // pCamInfo->xmlURL1,
-        // pCamInfo->xmlURL2,
+        propPresent[13],
+        propAbsValues[14],
+        propPresent[14]
+
+        // pCamInfo\t>serialNumber,
+        // pCamInfo\t>modelName,
+        // pCamInfo\t>vendorName,
+        // pCamInfo\t>sensorInfo,
+        // pCamInfo\t>sensorResolution,
+        // pCamInfo\t>firmwareVersion,
+        // pCamInfo\t>firmwareBuildTime,
+        // pCamInfo\t>gigEMajorVersion,
+        // pCamInfo\t>gigEMinorVersion,
+        // pCamInfo\t>userDefinedName,
+        // pCamInfo\t>xmlURL1,
+        // pCamInfo\t>xmlURL2,
         // macAddress,
         // ipAddress,
         // subnetMask,
