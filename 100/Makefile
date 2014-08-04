@@ -2,13 +2,13 @@
 # To compile the debug verison need to overwrite CXXFLAGS variable to include -ggdb
 
 CC = g++
-OUTPUTNAME = Anshula${D}
+OUTPUTNAME = 100${D}
 INCLUDE = -I../../include -I/usr/include/flycapture
 LIBS = -L../../lib -lflycapture${D} 
 
 OUTDIR = ../../bin
 
-OBJS = Anshula.o
+OBJS = 100.o
 
 ${OUTPUTNAME}: ${OBJS}
 	${CC} -o ${OUTPUTNAME} ${OBJS} ${LIBS} ${COMMON_LIBS} 
