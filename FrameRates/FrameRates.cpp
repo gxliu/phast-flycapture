@@ -525,7 +525,7 @@ int runSingleCamera(PGRGuid guid, CameraBase& cam, InterfaceType interfaceType) 
         PrintGigECameraInfo(&camInfo, dir);
         gigESetup(dynamic_cast<GigECamera&>(cam)); //get packet info, print stream info
     }
-    else if (interfaceType == INTERFACE_USB2) {
+    else  {
         PrintUSBCameraInfo(&camInfo, dir);
     }
     
@@ -692,7 +692,7 @@ int main(int /*argc*/, char** /*argv*/)
             runSingleCamera(guid, cam, interfaceType);
         }
 
-        else if ( interfaceType == INTERFACE_USB2) {
+        else {
             puts("USB Interface");
             Camera cam;
             runSingleCamera(guid, cam, interfaceType);
